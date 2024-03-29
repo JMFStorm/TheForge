@@ -1,0 +1,1 @@
+odin build src/. -out:release/jmfg3d.exe -o:aggressive -subsystem:windows
