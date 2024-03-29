@@ -27,20 +27,56 @@ Color3 :: struct {
 	b: f32
 }
 
+KeyState :: struct {
+	key: i32,
+	pressed: bool,
+	is_down: bool
+}
+
+MouseButtons :: enum {
+	m1,
+	m2
+}
+
+MouseControls :: struct {
+	window_pos: Vec2,
+	buttons: map[MouseButtons]KeyState
+}
+
+KeyboardKeys :: enum {
+	e,
+	v,
+}
+
+KeyboardControls :: struct {
+	keys: map[KeyboardKeys]KeyState
+}
+
+GameControls :: struct {
+	mouse: MouseControls,
+	keyboard: KeyboardControls,
+}
+
 GameWindow :: struct {
 	handle: glfw.WindowHandle,
 	size_px: Vec2,
 	aspect_ratio_xy: f32
 }
 
-SimpleRectangle2DShader :: struct {
+SimpleShader :: struct {
 	vbo: u32,
 	vao: u32,
 	shader_id: u32
 }
 
 GameShaders :: struct {
-	simple_rectangle_2d: SimpleRectangle2DShader
+	simple_rectangle_2d: SimpleShader,
+	line_2d: SimpleShader
+}
+
+Line2D_NDC :: struct {
+	start: Vec2,
+	end: Vec2
 }
 
 Rect2D_NDC :: struct {

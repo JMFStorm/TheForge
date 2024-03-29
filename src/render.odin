@@ -24,7 +24,7 @@ check_compilation_success :: proc(shader: u32) {
     }
 }
 
-init_simple_rectangle_2d_shader :: proc() -> SimpleRectangle2DShader {
+init_simple_rectangle_2d_shader :: proc() -> SimpleShader {
     vss : cstring = "#version 330 core\nlayout (location = 0) in vec3 aPos;\nout vec4 color;\nlayout (location = 1) in vec3 aColor;\nvoid main()\n{\ngl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\ncolor = vec4(aColor.x, aColor.y, aColor.z, 1.0);\n}"
     vs := gl.CreateShader(gl.VERTEX_SHADER)
     gl.ShaderSource(vs, 1, &vss, nil)
@@ -58,11 +58,50 @@ init_simple_rectangle_2d_shader :: proc() -> SimpleRectangle2DShader {
     gl.BindBuffer(gl.ARRAY_BUFFER, 0)
     gl.BindVertexArray(0)
 
-    return SimpleRectangle2DShader{vao, vbo, shader_id}
+    return SimpleShader{vao, vbo, shader_id}
 }
 
-draw_rect_2d :: proc(rect_coords: Rect2D_NDC, color: Color3) {
-    gl.BindVertexArray(game_shaders.simple_rectangle_2d.vao);
+init_line_2d_shader :: proc() -> SimpleShader {
+    vss : cstring = "#version 330 core\nlayout (location = 0) in vec3 aPos;\nout vec4 color;\nlayout (location = 1) in vec3 aColor;\nvoid main()\n{\ngl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\ncolor = vec4(aColor.x, aColor.y, aColor.z, 1.0);\n}"
+    vs := gl.CreateShader(gl.VERTEX_SHADER)
+    gl.ShaderSource(vs, 1, &vss, nil)
+    gl.CompileShader(vs)
+    check_compilation_success(vs)
+
+    fss : cstring = "#version 330 core\nin vec4 color;\nout vec4 FragColor;\nvoid main()\n{\nFragColor = vec4(color.r, color.g, color.b, 1.0f);\n}"
+    fs := gl.CreateShader(gl.FRAGMENT_SHADER)
+    gl.ShaderSource(fs, 1, &fss, nil)
+    gl.CompileShader(fs)
+    check_compilation_success(fs)
+
+    shader_id := create_shader_program(vs, fs)
+
+    vao, vbo : u32
+    gl.GenVertexArrays(1, &vao)
+    gl.GenBuffers(1, &vbo)
+    gl.BindVertexArray(vao)
+
+    gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+
+    SINGLE_LINE :: 2 * 6
+
+    rect_vertex_buffer_size := MAX_BUFFERED_LINES_2D * SINGLE_LINE * size_of(f32)
+    gl.BufferData(gl.ARRAY_BUFFER, rect_vertex_buffer_size, nil, gl.DYNAMIC_DRAW)
+
+    gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 6 * size_of(f32), 0)
+    gl.EnableVertexAttribArray(0)
+
+    gl.VertexAttribPointer(1, 3, gl.FLOAT, gl.FALSE, 6 * size_of(f32), 3 * size_of(f32))
+    gl.EnableVertexAttribArray(1)
+
+    gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+    gl.BindVertexArray(0)
+
+    return SimpleShader{vao, vbo, shader_id}
+}
+
+draw_rect_2d_filled :: proc(rect_coords: Rect2D_NDC, color: Color3) {
+    gl.BindVertexArray(game_shaders.simple_rectangle_2d.vao)
 
     rect_vertices := []f32 {
     	// Coords 										  	   // Color
@@ -77,12 +116,48 @@ draw_rect_2d :: proc(rect_coords: Rect2D_NDC, color: Color3) {
     gl.BindBuffer(gl.ARRAY_BUFFER, game_shaders.simple_rectangle_2d.vbo)
     gl.BufferData(gl.ARRAY_BUFFER, len(rect_vertices) * size_of(f32), raw_data(rect_vertices[:]), gl.DYNAMIC_DRAW)
 
-    gl.UseProgram(game_shaders.simple_rectangle_2d.shader_id);
-    gl.DrawArrays(gl.TRIANGLES, 0, 6);
+    gl.UseProgram(game_shaders.simple_rectangle_2d.shader_id)
+    gl.DrawArrays(gl.TRIANGLES, 0, 6)
+}
+
+draw_rect_2d_lined :: proc(rect_coords: Rect2D_NDC, color: Color3, width: f32) {
+    gl.BindVertexArray(game_shaders.line_2d.vao)
+
+    rect_vertices := []f32 {
+        // Coords                                              // Color
+        rect_coords.bot_left.x,  rect_coords.top_right.y, 1.0, color.r, color.g, color.b, // topleft
+        rect_coords.top_right.x, rect_coords.top_right.y, 1.0, color.r, color.g, color.b, // topright
+        rect_coords.top_right.x, rect_coords.bot_left.y,  1.0, color.r, color.g, color.b, // botright
+        rect_coords.bot_left.x,  rect_coords.bot_left.y,  1.0, color.r, color.g, color.b, // botleft 
+        rect_coords.bot_left.x,  rect_coords.top_right.y, 1.0, color.r, color.g, color.b, // topleft
+    }
+    gl.BindBuffer(gl.ARRAY_BUFFER, game_shaders.line_2d.vbo)
+    gl.BufferData(gl.ARRAY_BUFFER, len(rect_vertices) * size_of(f32), raw_data(rect_vertices[:]), gl.DYNAMIC_DRAW)
+
+    gl.UseProgram(game_shaders.line_2d.shader_id)
+    gl.LineWidth(width)
+    gl.DrawArrays(gl.LINE_STRIP, 0, 5)
+}
+
+draw_line_2d :: proc(line_2d_ndc: Line2D_NDC, color: Color3, width: f32) {
+    gl.BindVertexArray(game_shaders.line_2d.vao)
+
+    line_vertices := []f32 {
+        // Coords                                      // Color
+        line_2d_ndc.start.x, line_2d_ndc.start.y, 1.0, color.r, color.g, color.b, // start
+        line_2d_ndc.end.x,   line_2d_ndc.end.y,   1.0, color.r, color.g, color.b, // end
+    }
+    gl.BindBuffer(gl.ARRAY_BUFFER, game_shaders.line_2d.vbo)
+    gl.BufferData(gl.ARRAY_BUFFER, len(line_vertices) * size_of(f32), raw_data(line_vertices[:]), gl.DYNAMIC_DRAW)
+
+    gl.UseProgram(game_shaders.line_2d.shader_id)
+    gl.LineWidth(width)
+    gl.DrawArrays(gl.LINES, 0, 2)
 }
 
 load_all_shaders :: proc() -> GameShaders {
 	shaders := GameShaders{}
 	shaders.simple_rectangle_2d = init_simple_rectangle_2d_shader()
+    shaders.line_2d = init_line_2d_shader()
 	return shaders
 }
