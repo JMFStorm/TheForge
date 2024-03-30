@@ -56,12 +56,14 @@ size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 	gl.Viewport(0, 0, width, height)
 }
 
-arena_count : int = 0
-
 main :: proc() {
-	mem_tracker : mem.Tracking_Allocator
-	mem.tracking_allocator_init(&mem_tracker, context.allocator)
-	context.allocator = mem.tracking_allocator(&mem_tracker)
+	when ODIN_DEBUG {
+		fmt.println("ODIN DEBUG BUILD")
+		mem.tracking_allocator_init(&mem_tracker, context.allocator)
+		context.allocator = mem.tracking_allocator(&mem_tracker)
+		defer display_allocations_tracker_program_end(&mem_tracker)
+		defer deallocate_memory()
+	}
 
 	if success := glfw.Init(); success == false {
 		fmt.println("ERROR: glfw.Init() failed.")
@@ -82,6 +84,10 @@ main :: proc() {
 	glfw.SetFramebufferSizeCallback(game_window.handle, size_callback)
 
 	gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
+
+	gl.Enable(gl.BLEND)
+	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+	game_textures = load_all_textures()
 	game_shaders = load_all_shaders()
 	game_controls = init_game_controls()
 
@@ -107,10 +113,10 @@ main :: proc() {
         gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		if game_controls.keyboard.keys[.e].is_down {
-			draw_rect_2d_filled(get_rect_2d_anchor_vh_to_ndc(.top_right, {5, 5}, {25, 25}), {1.0, 0.5, 0.0})
-			draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
-		}
+		draw_rect_2d_filled({{0.25, 0.25}, {0.5, 0.5}}, {1.0, 1.0, 1.0}, game_textures["wall"].texture_id)
+		draw_rect_2d_filled({{-0.25, -0.25}, {0.25, 0.25}}, {1.0, 0.5, 0.0})
+
+		draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
 
 		if draw_selection_box == true {
 			draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.5, 0.3}, 2.0)
@@ -118,7 +124,4 @@ main :: proc() {
 
         glfw.SwapBuffers(game_window.handle)
     }
-
-	deallocate_memory()
-	defer display_allocations_tracker_program_end(&mem_tracker)
 }

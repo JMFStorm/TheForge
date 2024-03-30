@@ -1,7 +1,9 @@
 package main
 
+import "core:mem"
 import glfw "vendor:glfw"
 
+mem_tracker : mem.Tracking_Allocator
 game_window : GameWindow
 
 game_controls: GameControls
@@ -19,3 +21,4 @@ free_game_controls :: proc(gc: ^GameControls) {
 }
 
 game_shaders : GameShaders
+game_textures : map[string]TextureData

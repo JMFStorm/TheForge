@@ -78,3 +78,24 @@ Line2D_NDC :: struct {
 	start: Vec2,
 	end: Vec2,
 }
+
+Rect2D_NDC :: struct {
+	bot_left: Vec2,
+	top_right: Vec2,
+}
+
+ImageData :: struct {
+	filename: string,
+    width_px: i32,
+    height_px: i32,
+    channels: i32,
+    data: rawptr
+}
+
+TextureData :: struct {
+	name: string,
+	texture_id: u32,
+	width_px: i32,
+	height_px: i32,
+	has_alpha: bool,
+}

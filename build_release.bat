@@ -1,1 +1,2 @@
-odin build src/. -out:release/jmfg3d.exe -o:aggressive -subsystem:windows
+odin build src/. -out:dist/jmfg3d.exe -o:aggressive -subsystem:windows
+xcopy /s /e /y resources dist\resources\
