@@ -42,3 +42,13 @@ get_rect_2d_anchor_vh_to_ndc :: proc(anchor: UiAnchorPoint, bot_left_vh, size_vh
 	}
 	return get_rect_2d_vh_to_ndc(used_bot_left, used_size_vh)
 }
+
+get_px_pos_to_ndc :: proc(x, y: f32) -> Vec2 {
+	x_percentage := x / game_window.size_px.x
+	y_percentage := (game_window.size_px.y - y) / game_window.size_px.y
+
+	x_ndc : f32 = (x_percentage * 2) - 1.0
+	y_ndc : f32 = (y_percentage * 2) - 1.0
+
+	return {x_ndc, y_ndc}
+}

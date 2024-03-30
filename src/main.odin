@@ -6,6 +6,10 @@ import glfw "vendor:glfw"
 import "core:fmt"
 import "core:runtime"
 
+draw_selection_box := false
+box_start_ndc : Vec2
+box_end_ndc : Vec2
+
 init_game_window :: proc(x, y: i32, title: cstring) -> (window: GameWindow, error: bool) {
 	glfw.WindowHint(glfw.RESIZABLE, 0)
 	glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR, GL_MAJOR_VERSION) 
@@ -21,6 +25,9 @@ init_game_window :: proc(x, y: i32, title: cstring) -> (window: GameWindow, erro
 }
 
 set_game_controls_state :: proc() {
+	x, y := glfw.GetCursorPos(game_window.handle);
+	game_controls.mouse.window_pos = {f32(x), f32(y)}
+
 	for _, &button_state in game_controls.mouse.buttons {
 		state := glfw.GetMouseButton(game_window.handle, button_state.key)
 		if state == glfw.PRESS {
@@ -75,6 +82,17 @@ main :: proc() {
         glfw.PollEvents()
 		set_game_controls_state()
 
+		if game_controls.mouse.buttons[.m1].is_down {
+			draw_selection_box = true
+			if game_controls.mouse.buttons[.m1].pressed {
+				box_start_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
+			}
+			box_end_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
+		}
+		else {
+			draw_selection_box = false
+		}
+
         gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
@@ -83,8 +101,9 @@ main :: proc() {
 
 		draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
 
-		rect_dimensions_2 := get_rect_2d_anchor_vh_to_ndc(.bot_right, {20, 10}, {33, 33})
-		draw_rect_2d_lined(rect_dimensions_2, {0.2, 0.9, 0.7}, 2.0)
+		if draw_selection_box == true {
+			draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.5, 0.3}, 2.0)
+		}
 
         glfw.SwapBuffers(game_window.handle)
     }
