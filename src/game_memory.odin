@@ -1,5 +1,7 @@
 package main
 
+import glfw "vendor:glfw"
+
 import "core:fmt"
 import "core:mem"
 import "core:mem/virtual"
@@ -13,8 +15,10 @@ init_arena_buffer :: proc(buffer: []u8) -> virtual.Arena {
     return arena
 }
 
-deallocate_memory :: proc() {
-	free_game_controls(&game_controls)
+deallocate_all_memory :: proc() {
+	delete(game_controls.mouse.buttons)
+	delete(game_controls.keyboard.keys)
+	delete(game_textures)
 }
 
 display_allocations_tracker :: proc(a: ^mem.Tracking_Allocator) {
@@ -41,6 +45,8 @@ load_all_textures :: proc() -> map[string]TextureData {
 	defer delete(buffer)
 	mem_arena := init_arena_buffer(buffer[:])
 
+	// os.read_dir() to find all textures in folder
+
 	image_data := load_image_data("G:\\projects\\game\\TheForge\\resources\\images\\wall.jpg")
 	texture_1 := create_texture(image_data)
 	free_image_data(&image_data)
@@ -55,4 +61,13 @@ load_all_textures :: proc() -> map[string]TextureData {
 	game_textures[texture_1.name] = texture_1
 	game_textures[texture_2.name] = texture_2
 	return game_textures
+}
+
+init_game_controls :: proc() -> GameControls {
+	controls : GameControls
+	controls.mouse.buttons[.m1] = {glfw.MOUSE_BUTTON_LEFT, false, false}
+	controls.mouse.buttons[.m2] = {glfw.MOUSE_BUTTON_RIGHT, false, false}
+	controls.keyboard.keys[.e] = {glfw.KEY_E, false, false} 
+	controls.keyboard.keys[.v] = {glfw.KEY_V, false, false} 
+	return controls
 }

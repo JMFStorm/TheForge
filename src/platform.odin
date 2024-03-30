@@ -16,7 +16,6 @@ read_file_to_cstring :: proc(path: string, mem_arena: ^virtual.Arena) -> (cstrin
     defer os.close(f_handle)
 
     RESERVE_BYTES :: 1024
-    // virtual.arena_static_reset_to(mem_arena, 0)
     virtual.arena_free_all(mem_arena)
     buffer, arena_error := virtual.arena_alloc(mem_arena, RESERVE_BYTES, 8)
     if arena_error != nil {
