@@ -12,7 +12,7 @@ box_start_ndc : Vec2
 box_end_ndc : Vec2
 
 init_game_window :: proc(x, y: i32, title: cstring) -> (window: GameWindow, error: bool) {
-	glfw.WindowHint(glfw.RESIZABLE, 0)
+	// glfw.WindowHint(glfw.RESIZABLE, 0)
 	glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR, GL_MAJOR_VERSION) 
 	glfw.WindowHint(glfw.CONTEXT_VERSION_MINOR, GL_MINOR_VERSION)
 	glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
@@ -54,6 +54,9 @@ set_game_controls_state :: proc() {
 
 size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 	gl.Viewport(0, 0, width, height)
+	game_window.size_px.x = f32(width)
+	game_window.size_px.y = f32(height)
+	game_window.aspect_ratio_xy = f32(width) / f32(height)
 }
 
 main :: proc() {
@@ -72,7 +75,7 @@ main :: proc() {
 	defer glfw.Terminate()
 
 	error: bool
-	game_window, error = init_game_window(1600, 1200, "jmfg2d")
+	game_window, error = init_game_window(1200, 900, "jmfg2d")
 	if error {
 		fmt.println("ERROR: init_game_window() failed.")
 		return
@@ -113,9 +116,11 @@ main :: proc() {
         gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		draw_rect_2d({{0.25, 0.25}, {0.5, 0.5}}, {1.0, 1.0, 1.0}, game_textures["wall"].texture_id)
 		draw_rect_2d({{-0.25, -0.25}, {0.25, 0.25}}, {1.0, 0.5, 0.0})
 		draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
+
+		rect1_dimensions := ui_rect2d_anchored_to_ndc(.center, {vw(0), vh(0)}, {vh(25), vh(25)})
+		draw_rect_2d(rect1_dimensions, {1.0, 1.0, 1.0}, game_textures["wall"].texture_id)
 
 		if draw_selection_box == true {
 			draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.5, 0.3}, 2.0)
