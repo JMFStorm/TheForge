@@ -4,7 +4,8 @@ import gl "vendor:OpenGL"
 import glfw "vendor:glfw"
 
 import "core:fmt"
-import "core:runtime"
+import "core:mem"
+import "core:mem/virtual"
 
 draw_selection_box := false
 box_start_ndc : Vec2
@@ -15,7 +16,7 @@ init_game_window :: proc(x, y: i32, title: cstring) -> (window: GameWindow, erro
 	glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR, GL_MAJOR_VERSION) 
 	glfw.WindowHint(glfw.CONTEXT_VERSION_MINOR, GL_MINOR_VERSION)
 	glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-
+	
 	window_handle := glfw.CreateWindow(x, y, title, nil, nil)
 	if window_handle == nil {
 		return {}, true
@@ -55,7 +56,13 @@ size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 	gl.Viewport(0, 0, width, height)
 }
 
+arena_count : int = 0
+
 main :: proc() {
+	mem_tracker : mem.Tracking_Allocator
+	mem.tracking_allocator_init(&mem_tracker, context.allocator)
+	context.allocator = mem.tracking_allocator(&mem_tracker)
+
 	if success := glfw.Init(); success == false {
 		fmt.println("ERROR: glfw.Init() failed.")
 		return
@@ -93,13 +100,17 @@ main :: proc() {
 			draw_selection_box = false
 		}
 
+		if game_controls.keyboard.keys[.v].pressed {
+			display_allocations_tracker(&mem_tracker)
+		}
+
         gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		rect_dimensions_1 := get_rect_2d_anchor_vh_to_ndc(.top_right, {5, 5}, {25, 25})
-		draw_rect_2d_filled(rect_dimensions_1, {1.0, 0.5, 0.0})
-
-		draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
+		if game_controls.keyboard.keys[.e].is_down {
+			draw_rect_2d_filled(get_rect_2d_anchor_vh_to_ndc(.top_right, {5, 5}, {25, 25}), {1.0, 0.5, 0.0})
+			draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
+		}
 
 		if draw_selection_box == true {
 			draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.5, 0.3}, 2.0)
@@ -107,4 +118,7 @@ main :: proc() {
 
         glfw.SwapBuffers(game_window.handle)
     }
+
+	deallocate_memory()
+	defer display_allocations_tracker_program_end(&mem_tracker)
 }

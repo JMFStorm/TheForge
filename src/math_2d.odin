@@ -1,6 +1,6 @@
 package main
 
-get_rect_2d_vh_to_ndc :: proc(bot_left_vh, size_vh: Vec2) -> Rect2D_NDC {
+get_rect_2d_vh_to_ndc :: proc(bot_left_vh, size_vh: Vec2) -> Line2D_NDC {
 	x0_ndc : f32 = ((bot_left_vh.x / 100) * 2) - 1.0
 	y0_ndc : f32 = ((bot_left_vh.y / 100) * 2) - 1.0
 
@@ -13,10 +13,10 @@ get_rect_2d_vh_to_ndc :: proc(bot_left_vh, size_vh: Vec2) -> Rect2D_NDC {
 	x1_ndc : f32 = (((bot_left_vh.x / 100) + width_percentage) * 2) - 1.0
 	y1_ndc : f32 = (((bot_left_vh.y / 100) + height_percentage) * 2) - 1.0
 
-	return Rect2D_NDC{{x0_ndc, y0_ndc}, {x1_ndc, y1_ndc}}
+	return Line2D_NDC{{x0_ndc, y0_ndc}, {x1_ndc, y1_ndc}}
 }
 
-get_rect_2d_anchor_vh_to_ndc :: proc(anchor: UiAnchorPoint, bot_left_vh, size_vh: Vec2) -> Rect2D_NDC {
+get_rect_2d_anchor_vh_to_ndc :: proc(anchor: UiAnchorPoint, bot_left_vh, size_vh: Vec2) -> Line2D_NDC {
 	used_bot_left := bot_left_vh
 	used_size_vh := size_vh
 	switch anchor {

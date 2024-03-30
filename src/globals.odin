@@ -13,5 +13,9 @@ init_game_controls :: proc() -> GameControls {
 	controls.keyboard.keys[.v] = {glfw.KEY_V, false, false} 
 	return controls
 }
+free_game_controls :: proc(gc: ^GameControls) {
+	delete(gc.mouse.buttons)
+	delete(gc.keyboard.keys)
+}
 
 game_shaders : GameShaders

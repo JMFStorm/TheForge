@@ -7,12 +7,12 @@ UiAnchorPoint :: enum {
 	top_right,
 	center,
 	bot_left,
-	bot_right
+	bot_right,
 }
 
 Vec2 :: struct {
 	x: f32,
-	y: f32
+	y: f32,
 }
 
 Vec3 :: struct {
@@ -24,23 +24,23 @@ Vec3 :: struct {
 Color3 :: struct {
 	r: f32,
 	g: f32,
-	b: f32
+	b: f32,
 }
 
 KeyState :: struct {
 	key: i32,
 	pressed: bool,
-	is_down: bool
+	is_down: bool,
 }
 
 MouseButtons :: enum {
 	m1,
-	m2
+	m2,
 }
 
 MouseControls :: struct {
 	window_pos: Vec2,
-	buttons: map[MouseButtons]KeyState
+	buttons: map[MouseButtons]KeyState,
 }
 
 KeyboardKeys :: enum {
@@ -49,7 +49,7 @@ KeyboardKeys :: enum {
 }
 
 KeyboardControls :: struct {
-	keys: map[KeyboardKeys]KeyState
+	keys: map[KeyboardKeys]KeyState,
 }
 
 GameControls :: struct {
@@ -60,26 +60,21 @@ GameControls :: struct {
 GameWindow :: struct {
 	handle: glfw.WindowHandle,
 	size_px: Vec2,
-	aspect_ratio_xy: f32
+	aspect_ratio_xy: f32,
 }
 
 SimpleShader :: struct {
 	vbo: u32,
 	vao: u32,
-	shader_id: u32
+	shader_id: u32,
 }
 
 GameShaders :: struct {
 	simple_rectangle_2d: SimpleShader,
-	line_2d: SimpleShader
+	line_2d: SimpleShader,
 }
 
 Line2D_NDC :: struct {
 	start: Vec2,
-	end: Vec2
-}
-
-Rect2D_NDC :: struct {
-	bot_left: Vec2, // ndc
-	top_right: Vec2 // ndc
+	end: Vec2,
 }
