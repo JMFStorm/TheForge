@@ -113,9 +113,8 @@ main :: proc() {
         gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		draw_rect_2d_filled({{0.25, 0.25}, {0.5, 0.5}}, {1.0, 1.0, 1.0}, game_textures["wall"].texture_id)
-		draw_rect_2d_filled({{-0.25, -0.25}, {0.25, 0.25}}, {1.0, 0.5, 0.0})
-
+		draw_rect_2d({{0.25, 0.25}, {0.5, 0.5}}, {1.0, 1.0, 1.0}, game_textures["wall"].texture_id)
+		draw_rect_2d({{-0.25, -0.25}, {0.25, 0.25}}, {1.0, 0.5, 0.0})
 		draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
 
 		if draw_selection_box == true {

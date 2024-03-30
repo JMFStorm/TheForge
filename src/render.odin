@@ -110,9 +110,8 @@ init_line_2d_shader :: proc(mem_arena: ^virtual.Arena) -> SimpleShader {
     return SimpleShader{vao, vbo, shader_id}
 }
 
-draw_rect_2d_filled :: proc(rect_coords: Rect2D_NDC, color: Color3, texture_id: u32 = 0) {
+draw_rect_2d :: proc(rect_coords: Rect2D_NDC, color: Color3, texture_id: u32 = 0) {
     gl.BindVertexArray(game_shaders.simple_rectangle_2d.vao)
-
     rect_vertices := []f32 {
     	// Coords 								            // Color                          // UV
         rect_coords.bot_left.x,  rect_coords.top_right.y,   1.0, color.r, color.g, color.b,   0.0, 1.0, // topleft
@@ -135,14 +134,11 @@ draw_rect_2d_filled :: proc(rect_coords: Rect2D_NDC, color: Color3, texture_id: 
     else {
         gl.Uniform1i(u_draw_texture, 0)
     }
-
-
     gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
 draw_rect_2d_lined :: proc(rect_coords: Rect2D_NDC, color: Color3, width: f32) {
     gl.BindVertexArray(game_shaders.line_2d.vao)
-
     rect_vertices := []f32 {
         // Coords                                           // Color
         rect_coords.bot_left.x,  rect_coords.top_right.y,   1.0, color.r, color.g, color.b, // topleft
@@ -161,7 +157,6 @@ draw_rect_2d_lined :: proc(rect_coords: Rect2D_NDC, color: Color3, width: f32) {
 
 draw_line_2d :: proc(line_2d_ndc: Line2D_NDC, color: Color3, width: f32) {
     gl.BindVertexArray(game_shaders.line_2d.vao)
-
     line_vertices := []f32 {
         // Coords                                      // Color
         line_2d_ndc.start.x, line_2d_ndc.start.y, 1.0, color.r, color.g, color.b, // start
