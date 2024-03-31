@@ -9,3 +9,5 @@ game_window : GameWindow
 game_controls: GameControls
 game_shaders : GameShaders
 game_textures : map[string]TextureData
+
+imui_buffers : ImUiBuffers

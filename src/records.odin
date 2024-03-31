@@ -84,6 +84,11 @@ Rect2D_NDC :: struct {
 	top_right: Vec2,
 }
 
+Rect2D_px :: struct {
+	bot_left: Vec2,
+	top_right: Vec2,
+}
+
 ImageData :: struct {
 	filename: string,
     width_px: i32,
@@ -98,4 +103,9 @@ TextureData :: struct {
 	width_px: i32,
 	height_px: i32,
 	has_alpha: bool,
+}
+
+ImUiBuffers :: struct {
+	buffered_rect_2d: int,
+	simple_rectangle_2d_vbo: u32
 }

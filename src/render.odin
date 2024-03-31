@@ -50,7 +50,6 @@ init_simple_rectangle_2d_shader :: proc(mem_arena: ^virtual.Arena) -> SimpleShad
     gl.BindVertexArray(vao)
     gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
     
-    RECTANGLE_2D_VERTICIES :: 6 * 6
     rect_vertex_buffer_size := RECTANGLE_2D_VERTICIES * size_of(f32) * MAX_BUFFERED_RECTANGLES_2D
     gl.BufferData(gl.ARRAY_BUFFER, rect_vertex_buffer_size, nil, gl.DYNAMIC_DRAW)
 

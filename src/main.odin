@@ -94,6 +94,8 @@ main :: proc() {
 	game_shaders = load_all_shaders()
 	game_controls = init_game_controls()
 
+	imui_init()
+
 	for !glfw.WindowShouldClose(game_window.handle) {
         glfw.PollEvents()
 		set_game_controls_state()
@@ -113,6 +115,16 @@ main :: proc() {
 			display_allocations_tracker(&mem_tracker)
 		}
 
+		button1_dimensions := ui_rect2d_anchored_to_ndc(.top_left, {vw(2.5), vh(2.5)}, {vh(20), vh(15)})
+		if imui_menu_button(button1_dimensions) {
+			fmt.println("Button1")
+		}
+
+		button2_dimensions := ui_rect2d_anchored_to_ndc(.top_right, {vw(3.5), vh(3.5)}, {vh(10), vh(12.5)})
+		if imui_menu_button(button2_dimensions) {
+			fmt.println("Button2")
+		}
+
         gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
@@ -123,8 +135,10 @@ main :: proc() {
 		draw_rect_2d(rect1_dimensions, {1.0, 1.0, 1.0}, game_textures["wall"].texture_id)
 
 		if draw_selection_box == true {
-			draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.5, 0.3}, 2.0)
+			draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.5, 0.3}, 4.0)
 		}
+
+		imui_render()
 
         glfw.SwapBuffers(game_window.handle)
     }

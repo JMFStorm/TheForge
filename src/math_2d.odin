@@ -82,3 +82,25 @@ get_px_pos_to_ndc :: proc(x, y: f32) -> Vec2 {
 
 	return {x_ndc, y_ndc}
 }
+
+get_ndc_to_px :: proc(ndc: Vec2) -> Vec2 {
+	x := (ndc.x + 1.0) * game_window.size_px.x / 2
+	y := (ndc.y + 1.0) * game_window.size_px.y / 2
+	return {x, y}
+}
+
+get_rect_ndc_to_px :: proc(ndc: Rect2D_NDC) -> Rect2D_px {
+	bot_left := get_ndc_to_px(ndc.bot_left)
+	top_right := get_ndc_to_px(ndc.top_right)
+	return {bot_left, top_right}
+}
+
+rect_2d_point_collide :: proc(point_px: Vec2, rect: Rect2D_px) -> bool {
+	used_height_px := game_window.size_px.y - point_px.y
+	if rect.bot_left.x <= point_px.x && point_px.x <= rect.top_right.x {
+		if rect.bot_left.y <= used_height_px && used_height_px <= rect.top_right.y {
+			return true
+		}
+	}
+	return false
+}
