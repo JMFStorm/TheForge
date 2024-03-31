@@ -152,11 +152,11 @@ main :: proc() {
 			bitmap := stbtt.GetCodepointBitmap(&font_info, 0, font_scaling, char, &width, &height, &xoff, &yoff)
 			y_offset := height + yoff
 			for i : i32 = 0; i < height; i += 1 {
-				src_offset := (height * width) - width * (i + 1)
+				// src_offset := (height * width) - width * (i + 1)
+				src_offset := width * i
 				source := &bitmap[src_offset]
 				// dest_offset := (i32(test_font_1.texture_atlas_size.x) * i) + current_x
-				// buffer them on top
-				dest_offset := (i32(test_font_1.texture_atlas_size.x) * i) + current_x
+				dest_offset := i32(test_font_1.texture_atlas_size.x * (test_font_1.texture_atlas_size.y - 1)) + current_x
 				dest := &atlas_bitmap[dest_offset]
 				mem.zero(dest, int(width))
 				mem.copy(dest, source, int(width))
