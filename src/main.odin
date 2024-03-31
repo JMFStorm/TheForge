@@ -125,42 +125,48 @@ main :: proc() {
 		fmt.println("font_scaling:", font_scaling)
 
 		current_x : i32 = 0
-		for char in "fajLHGaq" {
+		// for char in "abcdefghijklmn" {
+		for i := 0; i < 96; i += 1 {
+			char := cast(rune)(i + 32)
 			width, height, xoff, yoff: c.int
 			bitmap := stbtt.GetCodepointBitmap(&font_info, 0, font_scaling, char, &width, &height, &xoff, &yoff)
-			fmt.println(char, "width", width, "height", height, "xoff", xoff, "yoff", yoff)
+			fmt.println(i, ":", char, "width", width, "height", height, "xoff", xoff, "yoff", yoff)
 			y_offset := height + yoff
-			fmt.println("y_offset", y_offset)
 
-			current := CodepointBitmapInfo{width, height, xoff, yoff}
-			test_font_1.codepoints[char] = current
+			current := CodepointBitmapInfo{char, width, height, xoff, yoff, {}, {}}
+			test_font_1.codepoints[i] = current
 			stbtt.FreeBitmap(bitmap, nil)
 
 			current_x += width
-			fmt.println("current_x", current_x)
 		}
 
 		test_font_1.texture_atlas_size.x = f32(current_x)
 		test_font_1.texture_atlas_size.y = font_height_px
-
 		fmt.println("texture_atlas_size", test_font_1.texture_atlas_size.x, "/", test_font_1.texture_atlas_size.y)
 
 		current_x = 0
-		atlas_bitmap := make([]u8, i32(test_font_1.texture_atlas_size.x * test_font_1.texture_atlas_size.y))
-		for char in "fajLHGaq" {
+		bitmap_width := i32(test_font_1.texture_atlas_size.x)
+		bitmap_height := i32(test_font_1.texture_atlas_size.y)
+		atlas_bitmap := make([]u8, bitmap_width * bitmap_height)
+		for i := 0; i < 96; i += 1 {
+			char := cast(rune)(i + 32)
 			width, height, xoff, yoff: c.int
 			bitmap := stbtt.GetCodepointBitmap(&font_info, 0, font_scaling, char, &width, &height, &xoff, &yoff)
+			atlas_offset := bitmap_height - height
 			y_offset := height + yoff
-			for i : i32 = 0; i < height; i += 1 {
-				// src_offset := (height * width) - width * (i + 1)
-				src_offset := width * i
+			dest_offset_start := i32(bitmap_width * (bitmap_height - 1 - atlas_offset)) + current_x
+			for i : i32 = 0; i < (height - 1); i += 1 {
+				src_offset := (width * height) - width * (i + 1)
 				source := &bitmap[src_offset]
-				// dest_offset := (i32(test_font_1.texture_atlas_size.x) * i) + current_x
-				dest_offset := i32(test_font_1.texture_atlas_size.x * (test_font_1.texture_atlas_size.y - 1)) + current_x
+				dest_offset := (i * bitmap_width) + current_x
 				dest := &atlas_bitmap[dest_offset]
 				mem.zero(dest, int(width))
 				mem.copy(dest, source, int(width))
 			}
+
+			current := test_font_1.codepoints[i]
+			// set char atlas uv data 
+
 			stbtt.FreeBitmap(bitmap, nil)
 			current_x += width
 		}
@@ -215,7 +221,7 @@ main :: proc() {
 		draw_rect_2d({{-0.75, -0.75}, {-0.25, -0.25}}, {1.0, 0.5, 0.0})
 		draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
 
-		rect1_dimensions := ui_rect2d_anchored_to_ndc(.bot_left, {vw(0), vh(0)}, {vh(80), vh(50)})
+		rect1_dimensions := ui_rect2d_anchored_to_ndc(.bot_left, {vw(-80), vh(1)}, {vw(180), vh(25)})
 		draw_rect_2d(rect1_dimensions, {1.0, 1.0, 1.0}, test_font_1.texture_atlas_id)
 
 		if draw_selection_box == true {
