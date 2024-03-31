@@ -106,6 +106,10 @@ TextureData :: struct {
 }
 
 ImUiBuffers :: struct {
-	buffered_rect_2d: int,
-	simple_rectangle_2d_vbo: u32
+	buffered_rects_2d: int,
+	simple_rectangle_2d_vbo: u32,
+	simple_rectangle_2d_vao: u32,
+	buffered_lines_2d: int,
+	line_2d_vbo: u32,
+	line_2d_vao: u32,
 }

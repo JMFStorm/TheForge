@@ -115,6 +115,10 @@ main :: proc() {
 			display_allocations_tracker(&mem_tracker)
 		}
 
+		if game_controls.keyboard.keys[.e].pressed {
+			fmt.println("Debug")
+		}
+
 		button1_dimensions := ui_rect2d_anchored_to_ndc(.top_left, {vw(2.5), vh(2.5)}, {vh(20), vh(15)})
 		if imui_menu_button(button1_dimensions) {
 			fmt.println("Button1")
@@ -139,7 +143,6 @@ main :: proc() {
 		}
 
 		imui_render()
-
         glfw.SwapBuffers(game_window.handle)
     }
 }
