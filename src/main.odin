@@ -121,14 +121,19 @@ main :: proc() {
 		}
 		font_height_px : f32 = 32.0
 		font_scaling := stbtt.ScaleForPixelHeight(&font_info, font_height_px)
+		test_font_1.font_scaling = font_scaling
 		fmt.println("font_scaling:", font_scaling)
 
 		current_x : i32 = 0
-
-		for char in "fa" {
+		for char in "fajLHGaq" {
 			width, height, xoff, yoff: c.int
 			bitmap := stbtt.GetCodepointBitmap(&font_info, 0, font_scaling, char, &width, &height, &xoff, &yoff)
-			fmt.println(char, width, height, xoff, yoff)
+			fmt.println(char, "width", width, "height", height, "xoff", xoff, "yoff", yoff)
+			y_offset := height + yoff
+			fmt.println("y_offset", y_offset)
+
+			current := CodepointBitmapInfo{width, height, xoff, yoff}
+			test_font_1.codepoints[char] = current
 			stbtt.FreeBitmap(bitmap, nil)
 
 			current_x += width
@@ -141,15 +146,17 @@ main :: proc() {
 		fmt.println("texture_atlas_size", test_font_1.texture_atlas_size.x, "/", test_font_1.texture_atlas_size.y)
 
 		current_x = 0
-
 		atlas_bitmap := make([]u8, i32(test_font_1.texture_atlas_size.x * test_font_1.texture_atlas_size.y))
-		for char in "fa" {
+		for char in "fajLHGaq" {
 			width, height, xoff, yoff: c.int
 			bitmap := stbtt.GetCodepointBitmap(&font_info, 0, font_scaling, char, &width, &height, &xoff, &yoff)
+			y_offset := height + yoff
 			for i : i32 = 0; i < height; i += 1 {
-				src_offset := width * i
+				src_offset := (height * width) - width * (i + 1)
 				source := &bitmap[src_offset]
-				dest_offset := i32(test_font_1.texture_atlas_size.x) * i + current_x
+				// dest_offset := (i32(test_font_1.texture_atlas_size.x) * i) + current_x
+				// buffer them on top
+				dest_offset := (i32(test_font_1.texture_atlas_size.x) * i) + current_x
 				dest := &atlas_bitmap[dest_offset]
 				mem.zero(dest, int(width))
 				mem.copy(dest, source, int(width))
@@ -165,7 +172,7 @@ main :: proc() {
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
 		gl.PixelStorei(gl.UNPACK_ALIGNMENT, 4)
 	}
 
