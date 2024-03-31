@@ -2,7 +2,10 @@ package main
 
 import gl "vendor:OpenGL"
 import glfw "vendor:glfw"
+import stbtt "vendor:stb/truetype"
 
+import "core:c"
+import "core:os"
 import "core:fmt"
 import "core:mem"
 import "core:mem/virtual"
@@ -59,6 +62,8 @@ size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 	game_window.aspect_ratio_xy = f32(width) / f32(height)
 }
 
+test_font_1 : TTF_Font
+
 main :: proc() {
 	when ODIN_DEBUG {
 		fmt.println("ODIN DEBUG BUILD")
@@ -96,6 +101,74 @@ main :: proc() {
 
 	imui_init()
 
+	{
+		f_handle, error := os.open("G:\\projects\\game\\TheForge\\resources\\fonts\\Inter-Regular.ttf")
+		if error != 0 {
+			panic("ERROR: Get file handle")
+		}
+		defer os.close(f_handle)
+	
+		file_buffer := make([]u8, 1024 * 1024 * 5)
+		bytes_read, read_error := os.read(f_handle, file_buffer[:])
+		if read_error != 0 {
+			panic("ERROR: Read file")
+		}
+
+		font_info: stbtt.fontinfo
+		success := stbtt.InitFont(&font_info, raw_data(file_buffer[:]), 0)
+		if !success {
+			fmt.println("ERROR: InitFont()")
+		}
+		font_height_px : f32 = 32.0
+		font_scaling := stbtt.ScaleForPixelHeight(&font_info, font_height_px)
+		fmt.println("font_scaling:", font_scaling)
+
+		current_x : i32 = 0
+
+		for char in "fa" {
+			width, height, xoff, yoff: c.int
+			bitmap := stbtt.GetCodepointBitmap(&font_info, 0, font_scaling, char, &width, &height, &xoff, &yoff)
+			fmt.println(char, width, height, xoff, yoff)
+			stbtt.FreeBitmap(bitmap, nil)
+
+			current_x += width
+			fmt.println("current_x", current_x)
+		}
+
+		test_font_1.texture_atlas_size.x = f32(current_x)
+		test_font_1.texture_atlas_size.y = font_height_px
+
+		fmt.println("texture_atlas_size", test_font_1.texture_atlas_size.x, "/", test_font_1.texture_atlas_size.y)
+
+		current_x = 0
+
+		atlas_bitmap := make([]u8, i32(test_font_1.texture_atlas_size.x * test_font_1.texture_atlas_size.y))
+		for char in "fa" {
+			width, height, xoff, yoff: c.int
+			bitmap := stbtt.GetCodepointBitmap(&font_info, 0, font_scaling, char, &width, &height, &xoff, &yoff)
+			for i : i32 = 0; i < height; i += 1 {
+				src_offset := width * i
+				source := &bitmap[src_offset]
+				dest_offset := i32(test_font_1.texture_atlas_size.x) * i + current_x
+				dest := &atlas_bitmap[dest_offset]
+				mem.zero(dest, int(width))
+				mem.copy(dest, source, int(width))
+			}
+			stbtt.FreeBitmap(bitmap, nil)
+			current_x += width
+		}
+
+		gl.PixelStorei(gl.UNPACK_ALIGNMENT, 1)
+		gl.GenTextures(1, &test_font_1.texture_atlas_id)
+		gl.BindTexture(gl.TEXTURE_2D, test_font_1.texture_atlas_id)
+		gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RED, i32(test_font_1.texture_atlas_size.x), i32(test_font_1.texture_atlas_size.y), 0, gl.RED, gl.UNSIGNED_BYTE, raw_data(atlas_bitmap[:]))
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+		gl.PixelStorei(gl.UNPACK_ALIGNMENT, 4)
+	}
+
 	for !glfw.WindowShouldClose(game_window.handle) {
         glfw.PollEvents()
 		set_game_controls_state()
@@ -132,14 +205,14 @@ main :: proc() {
         gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		draw_rect_2d({{-0.25, -0.25}, {0.25, 0.25}}, {1.0, 0.5, 0.0})
+		draw_rect_2d({{-0.75, -0.75}, {-0.25, -0.25}}, {1.0, 0.5, 0.0})
 		draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
 
-		rect1_dimensions := ui_rect2d_anchored_to_ndc(.center, {vw(0), vh(0)}, {vh(25), vh(25)})
-		draw_rect_2d(rect1_dimensions, {1.0, 1.0, 1.0}, game_textures["wall"].texture_id)
+		rect1_dimensions := ui_rect2d_anchored_to_ndc(.bot_left, {vw(0), vh(0)}, {vh(80), vh(50)})
+		draw_rect_2d(rect1_dimensions, {1.0, 1.0, 1.0}, test_font_1.texture_atlas_id)
 
 		if draw_selection_box == true {
-			draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.5, 0.3}, 4.0)
+			draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
 		}
 
 		imui_render()

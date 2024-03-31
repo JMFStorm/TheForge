@@ -5,34 +5,13 @@ import gl "vendor:OpenGL"
 
 imui_init :: proc() {
     init_ui_rect_2d_buffers()
-    init_ui_line_2d_buffers()
-}
-
-init_ui_line_2d_buffers :: proc() {
-    gl.GenVertexArrays(1, &imui_buffers.line_2d_vao)
-    gl.GenBuffers(1, &imui_buffers.line_2d_vbo)
-    gl.BindVertexArray(imui_buffers.line_2d_vao)
-    gl.BindBuffer(gl.ARRAY_BUFFER, imui_buffers.line_2d_vbo)
-
-    SINGLE_LINE :: 2 * 6
-    vertex_buffer_size := MAX_BUFFERED_UI_LINES_2D * SINGLE_LINE * size_of(f32)
-    gl.BufferData(gl.ARRAY_BUFFER, vertex_buffer_size, nil, gl.DYNAMIC_DRAW)
-    // xyz
-    gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 6 * size_of(f32), 0)
-    gl.EnableVertexAttribArray(0)
-    // rgb
-    gl.VertexAttribPointer(1, 3, gl.FLOAT, gl.FALSE, 6 * size_of(f32), 3 * size_of(f32))
-    gl.EnableVertexAttribArray(1)
-
-    gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-    gl.BindVertexArray(0)
 }
 
 init_ui_rect_2d_buffers :: proc() {
-    gl.GenVertexArrays(1, &imui_buffers.simple_rectangle_2d_vao)
-    gl.GenBuffers(1, &imui_buffers.simple_rectangle_2d_vbo)
-    gl.BindVertexArray(imui_buffers.simple_rectangle_2d_vao)
-    gl.BindBuffer(gl.ARRAY_BUFFER, imui_buffers.simple_rectangle_2d_vbo)
+    gl.GenVertexArrays(1, &imui_buffers.ui_rects.vao)
+    gl.GenBuffers(1, &imui_buffers.ui_rects.vbo)
+    gl.BindVertexArray(imui_buffers.ui_rects.vao)
+    gl.BindBuffer(gl.ARRAY_BUFFER, imui_buffers.ui_rects.vbo)
 
     rect_vertex_buffer_size := RECTANGLE_2D_VERTICIES * size_of(f32) * MAX_BUFFERED_IMUI_RECTANGLES_2D
     gl.BufferData(gl.ARRAY_BUFFER, rect_vertex_buffer_size, nil, gl.DYNAMIC_DRAW)
@@ -64,7 +43,7 @@ buffer_ui_rect_2d :: proc(rect_coords: Rect2D_NDC, color: Color3) {
     verticies_byte_size := len(rect_vertices) * size_of(f32)
     offset := imui_buffers.buffered_rects_2d * verticies_byte_size
 
-    gl.BindBuffer(gl.ARRAY_BUFFER, imui_buffers.simple_rectangle_2d_vbo)
+    gl.BindBuffer(gl.ARRAY_BUFFER, imui_buffers.ui_rects.vbo)
     gl.BufferSubData(gl.ARRAY_BUFFER, offset, verticies_byte_size, raw_data(rect_vertices[:]))
     imui_buffers.buffered_rects_2d += 1
 }
@@ -84,8 +63,8 @@ imui_menu_button :: proc(dimensions: Rect2D_NDC) -> bool {
 }
 
 draw_buffered_ui_rects_2d :: proc() {
-    gl.BindVertexArray(imui_buffers.simple_rectangle_2d_vao)
-    gl.BindBuffer(gl.ARRAY_BUFFER, imui_buffers.simple_rectangle_2d_vbo)
+    gl.BindVertexArray(imui_buffers.ui_rects.vao)
+    gl.BindBuffer(gl.ARRAY_BUFFER, imui_buffers.ui_rects.vbo)
     gl.UseProgram(game_shaders.simple_rectangle_2d.shader_id)
 
     u_draw_texture := gl.GetUniformLocation(game_shaders.simple_rectangle_2d.shader_id, "draw_texture")
@@ -99,15 +78,8 @@ draw_buffered_ui_rects_2d :: proc() {
     gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 }
 
-draw_buffered_ui_lined_rects_2d :: proc(line_width: f32) {
-
-}
-
 imui_render :: proc() {
     if 0 < imui_buffers.buffered_rects_2d {
         draw_buffered_ui_rects_2d()
-    }
-    if 0 < imui_buffers.buffered_lines_2d { 
-        draw_buffered_ui_lined_rects_2d(4.0)
     }
 }
