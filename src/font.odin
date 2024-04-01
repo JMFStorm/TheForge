@@ -66,26 +66,32 @@ get_font_atlas_size :: proc(font_data: ^TTF_Font, font_info: ^stbtt.fontinfo) {
 
 load_ttf_font :: proc(filepath: string, font_height_px: f32, mem_arena: ^virtual.Arena) -> TTF_Font {
         file_buffer := read_file_to_buffer(filepath, mem_arena)
-        new_font: TTF_Font
-        new_font.font_size_px = font_height_px
-        font_info: stbtt.fontinfo
-        success := stbtt.InitFont(&font_info, raw_data(file_buffer[:]), 0)
+        font_data: TTF_Font
+        font_data.font_size_px = font_height_px
+        stb_font_info: stbtt.fontinfo
+        success := stbtt.InitFont(&stb_font_info, raw_data(file_buffer[:]), 0)
         if !success {
                 fmt.println("ERROR: InitFont()")
         }
 
-        font_scaling := stbtt.ScaleForPixelHeight(&font_info, font_height_px)
-        new_font.font_scaling = font_scaling
-        get_font_atlas_size(&new_font, &font_info) 
+        font_scaling := stbtt.ScaleForPixelHeight(&stb_font_info, font_height_px)
+        font_data.font_scaling = font_scaling
+        get_font_atlas_size(&font_data, &stb_font_info) 
+        build_font_atlas_bitmap(&font_data, &stb_font_info)
+        return font_data
+}
 
+build_font_atlas_bitmap :: proc(font_data: ^TTF_Font, font_info: ^stbtt.fontinfo) {
         current_x : i32 = 0
-        bitmap_width := i32(new_font.texture_atlas_size.x)
-        bitmap_height := i32(new_font.texture_atlas_size.y)
+        bitmap_width := i32(font_data.texture_atlas_size.x)
+        bitmap_height := i32(font_data.texture_atlas_size.y)
         atlas_bitmap := make([]u8, bitmap_width * bitmap_height)
+        defer delete(atlas_bitmap)
+
         for i := 0; i < 96; i += 1 {
                 char := cast(rune)(i + 32)
                 width, height, xoff, yoff: c.int
-                bitmap := stbtt.GetCodepointBitmap(&font_info, 0, font_scaling, char, &width, &height, &xoff, &yoff)
+                bitmap := stbtt.GetCodepointBitmap(font_info, 0, font_data.font_scaling, char, &width, &height, &xoff, &yoff)
                 atlas_offset := bitmap_height - height
                 y_offset := height + yoff
                 dest_offset_start := i32(bitmap_width * (bitmap_height - 1 - atlas_offset)) + current_x
@@ -97,19 +103,17 @@ load_ttf_font :: proc(filepath: string, font_height_px: f32, mem_arena: ^virtual
                         mem.zero(dest, int(width))
                         mem.copy(dest, source, int(width))
                 }
-
                 uv_botleft_x : f32 = f32(current_x) / f32(bitmap_width)
                 uv_topright_x : f32 = f32(current_x + width) / f32(bitmap_width)
                 uv_topright_y : f32 = f32(height) / f32(bitmap_height)
 
-                current := &new_font.codepoints[i]
+                current := &font_data.codepoints[i]
                 current.glyph_uv_bot_left = {uv_botleft_x, 0.0}
                 current.glyph_uv_top_right = {uv_topright_x, uv_topright_y}
                 stbtt.FreeBitmap(bitmap, nil)
                 current_x += width
         }
-        create_font_atlas_texture(&new_font, atlas_bitmap)
-        return new_font
+        create_font_atlas_texture(font_data, atlas_bitmap)
 }
 
 create_font_atlas_texture :: proc(font_data: ^TTF_Font, atlas_bitmap: []byte) {
