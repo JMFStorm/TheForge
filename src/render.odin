@@ -7,6 +7,17 @@ import "core:path/filepath"
 import "core:mem/virtual"
 import gl "vendor:OpenGL"
 
+SimpleShader :: struct {
+	vbo: u32,
+	vao: u32,
+	shader_id: u32,
+}
+
+GameShaders :: struct {
+	simple_rectangle_2d: SimpleShader,
+	line_2d: SimpleShader,
+}
+
 create_shader_program :: proc(vs, fs: u32) -> u32 {
     shader_id := gl.CreateProgram()
     gl.AttachShader(shader_id, vs);

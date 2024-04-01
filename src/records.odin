@@ -10,23 +10,6 @@ UiAnchorPoint :: enum {
 	bot_right,
 }
 
-Vec2 :: struct {
-	x: f32,
-	y: f32,
-}
-
-Vec3 :: struct {
-	x: f32,
-	y: f32,
-	z: f32
-}
-
-Color3 :: struct {
-	r: f32,
-	g: f32,
-	b: f32,
-}
-
 KeyState :: struct {
 	key: i32,
 	pressed: bool,
@@ -61,17 +44,6 @@ GameWindow :: struct {
 	handle: glfw.WindowHandle,
 	size_px: Vec2,
 	aspect_ratio_xy: f32,
-}
-
-SimpleShader :: struct {
-	vbo: u32,
-	vao: u32,
-	shader_id: u32,
-}
-
-GameShaders :: struct {
-	simple_rectangle_2d: SimpleShader,
-	line_2d: SimpleShader,
 }
 
 Line2D_NDC :: struct {

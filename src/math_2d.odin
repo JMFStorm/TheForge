@@ -1,5 +1,9 @@
 package main
 
+Vec2 :: [2]f32
+Vec3 :: [3]f32
+Color3 :: [3]f32
+
 get_rect_2d_vh_to_ndc :: proc(bot_left_vh, size_vh: Vec2) -> Line2D_NDC {
 	x0_ndc : f32 = ((bot_left_vh.x / 100) * 2) - 1.0
 	y0_ndc : f32 = ((bot_left_vh.y / 100) * 2) - 1.0
@@ -14,10 +18,6 @@ get_rect_2d_vh_to_ndc :: proc(bot_left_vh, size_vh: Vec2) -> Line2D_NDC {
 	y1_ndc : f32 = (((bot_left_vh.y / 100) + height_percentage) * 2) - 1.0
 
 	return Line2D_NDC{{x0_ndc, y0_ndc}, {x1_ndc, y1_ndc}}
-}
-
-vec2_add :: proc(a, b: Vec2) -> Vec2 {
-	return {a.x + b.x, a.y + b.y}
 }
 
 vh :: proc(vh: f32) -> f32 {
@@ -48,26 +48,26 @@ ui_rect2d_anchored_to_ndc :: proc(
 
 	switch anchor {
 		case .top_left: {
-			bot_left = vec2_add({-1.0, 1.0}, {dist_x_ndc, -dist_y_ndc - height_ndc})
-			top_right = vec2_add(bot_left, {width_ndc, height_ndc})
+			bot_left = {-1.0, 1.0} + {dist_x_ndc, -dist_y_ndc - height_ndc}
+			top_right = bot_left + {width_ndc, height_ndc}
 		}
 		case .top_right: {
-			top_right = vec2_add({1.0, 1.0}, {-dist_x_ndc, -dist_y_ndc})
-			bot_left = vec2_add(top_right, {-width_ndc, -height_ndc})
+			top_right = {1.0, 1.0} + {-dist_x_ndc, -dist_y_ndc}
+			bot_left = top_right + {-width_ndc, -height_ndc}
 		}
 		case .center: {
 			width_half := width_ndc / 2
 			height_half := height_ndc / 2
-			bot_left = vec2_add({0, 0}, {dist_x_ndc - width_half, dist_y_ndc - height_half})
-			top_right = vec2_add(bot_left, {width_ndc, height_ndc})
+			bot_left = {0, 0} + {dist_x_ndc - width_half, dist_y_ndc - height_half}
+			top_right = bot_left + {width_ndc, height_ndc}
 		}
 		case .bot_left: {
-			bot_left = vec2_add({-1.0, -1.0}, {dist_x_ndc, dist_y_ndc})
-			top_right = vec2_add(bot_left, Vec2{width_ndc, height_ndc})
+			bot_left = {-1.0, -1.0} + {dist_x_ndc, dist_y_ndc}
+			top_right = bot_left + Vec2{width_ndc, height_ndc}
 		}
 		case .bot_right: {
-			top_right = vec2_add({1.0, -1.0}, {-dist_x_ndc, dist_y_ndc + height_ndc})
-			bot_left = vec2_add(top_right, {-width_ndc, -height_ndc})
+			top_right = {1.0, -1.0} + {-dist_x_ndc, dist_y_ndc + height_ndc}
+			bot_left = top_right + {-width_ndc, -height_ndc}
 		}
 	}
 	return {bot_left, top_right}
