@@ -15,13 +15,13 @@ read_file_to_cstring :: proc(path: string, mem_arena: ^virtual.Arena) -> (cstrin
     }
     defer os.close(f_handle)
 
-    RESERVE_BYTES :: 1024
+    RESERVE_STR_BYTES :: 1024
     virtual.arena_free_all(mem_arena)
-    buffer, arena_error := virtual.arena_alloc(mem_arena, RESERVE_BYTES, 8)
+    buffer, arena_error := virtual.arena_alloc(mem_arena, mem_arena.total_reserved, 8)
     if arena_error != nil {
         panic("ERROR: Allocate memory arena")
     }
-    mem.zero(raw_data(buffer), RESERVE_BYTES)
+    mem.zero(raw_data(buffer), RESERVE_STR_BYTES)
 
     bytes_read, read_error := os.read(f_handle, buffer[:])
     if read_error != 0 {
@@ -29,6 +29,24 @@ read_file_to_cstring :: proc(path: string, mem_arena: ^virtual.Arena) -> (cstrin
     }
     cstr := cstring(raw_data(buffer))
     return cstr, bytes_read
+}
+
+read_file_to_buffer :: proc(path: string, mem_arena: ^virtual.Arena) -> ^[]byte {
+    f_handle, error := os.open(path)
+    if error != 0 {
+        panic("ERROR: Get file handle")
+    }
+    defer os.close(f_handle)
+    virtual.arena_free_all(mem_arena)
+    buffer, arena_error := virtual.arena_alloc(mem_arena, mem_arena.total_reserved, 8)
+    if arena_error != nil {
+        panic("ERROR: Allocate memory arena")
+    }
+    bytes_read, read_error := os.read(f_handle, buffer[:])
+    if read_error != 0 {
+        panic("ERROR: Read file")
+    }
+    return &buffer
 }
 
 load_image_data :: proc(path: cstring) -> ImageData {

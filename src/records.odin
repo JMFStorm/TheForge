@@ -81,20 +81,3 @@ ImUiBuffers :: struct {
 	ui_rects: SimpleShader,
 	buffered_rects_2d: int,
 }
-
-TTF_Font :: struct {
-	font_scaling: f32,
-	texture_atlas_id: u32,
-	texture_atlas_size: Vec2,
-	codepoints: [96]CodepointBitmapInfo,
-}
-
-CodepointBitmapInfo :: struct {
-	char: rune,
-	width: i32,
-	height: i32,
-	xoff: i32,
-	yoff: i32,
-	atlas_uv_00: Vec2,
-	atlas_uv_11: Vec2,
-}

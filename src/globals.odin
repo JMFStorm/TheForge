@@ -11,3 +11,5 @@ game_shaders : GameShaders
 game_textures : map[string]TextureData
 
 imui_buffers : ImUiBuffers
+
+game_fonts : GameFonts
