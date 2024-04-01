@@ -74,55 +74,47 @@ main :: proc() {
 	imui_init()
 
 	for !glfw.WindowShouldClose(game_window.handle) {
-        glfw.PollEvents()
+                glfw.PollEvents()
 		set_game_controls_state()
-
 		if game_controls.mouse.buttons[.m1].is_down {
 			draw_selection_box = true
 			if game_controls.mouse.buttons[.m1].pressed {
 				box_start_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
 			}
 			box_end_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
-		}
-		else {
-			draw_selection_box = false
-		}
-
-		if game_controls.keyboard.keys[.v].pressed {
-			display_allocations_tracker(&mem_tracker)
-		}
-
-		if game_controls.keyboard.keys[.e].pressed {
-			fmt.println("Debug")
-		}
-
+		} 
+                else { 
+                        draw_selection_box = false 
+                }
+		if game_controls.keyboard.keys[.v].pressed { 
+                        display_allocations_tracker(&mem_tracker) 
+                }
 		button1_dimensions := ui_rect2d_anchored_to_ndc(.top_left, {vw(2.5), vh(2.5)}, {vh(20), vh(15)})
-		if imui_menu_button(button1_dimensions) {
-			fmt.println("Button1")
-		}
-
+		if imui_menu_button(button1_dimensions) { 
+                        fmt.println("Button1") 
+                }
 		button2_dimensions := ui_rect2d_anchored_to_ndc(.top_right, {vw(3.5), vh(3.5)}, {vh(10), vh(12.5)})
-		if imui_menu_button(button2_dimensions) {
-			fmt.println("Button2")
-		}
+		if imui_menu_button(button2_dimensions) { 
+                        fmt.println("Button2") 
+                }
 
-        gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
-		gl.Clear(gl.COLOR_BUFFER_BIT)
+                gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
+	        gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		draw_rect_2d({{-0.75, -0.75}, {-0.25, -0.25}}, {1.0, 0.5, 0.0})
-		draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
+	        draw_rect_2d({{-0.75, -0.75}, {-0.25, -0.25}}, {1.0, 0.5, 0.0})
+	        draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
 
-		rect1_dimensions := ui_rect2d_anchored_to_ndc(.bot_left, {vw(-80), vh(1)}, {vw(180), vh(25)})
-		draw_rect_2d(rect1_dimensions, {1.0, 1.0, 1.0}, game_fonts.debug_font.texture_atlas_id)
+	        rect1_dimensions := ui_rect2d_anchored_to_ndc(.bot_left, {vw(-80), vh(1)}, {vw(180), vh(25)})
+	        draw_rect_2d(rect1_dimensions, {1.0, 1.0, 1.0}, game_fonts.debug_font.texture_atlas_id)
 
-		char1_dimensions := ui_rect2d_anchored_to_ndc(.top_right, {vh(12), vh(12)}, {vh(20), vh(25)})
-		draw_character(char1_dimensions, {1,1,1}, &game_fonts.debug_font, 'E')
+	        char1_dimensions := ui_rect2d_anchored_to_ndc(.top_right, {vh(12), vh(12)}, {vh(20), vh(25)})
+	        draw_character(char1_dimensions.bot_left, {0.0, 1.0 , 0.0}, &game_fonts.debug_font, 'P')
 
-		if draw_selection_box == true {
-			draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
-		}
+	        if draw_selection_box == true {
+		        draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
+	        }
 
-		imui_render()
-        glfw.SwapBuffers(game_window.handle)
-    }
+	        imui_render()
+                glfw.SwapBuffers(game_window.handle)
+        }
 }

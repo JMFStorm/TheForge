@@ -1,0 +1,14 @@
+#version 330 core
+
+in vec4 color;
+in vec2 texture_coords;
+
+uniform sampler2D texture_atlas;
+
+out vec4 frag_color;
+
+void main()
+{
+        float glyph_value = texture(texture_atlas, texture_coords).r;
+        frag_color = vec4(color.r, color.g, color.b, glyph_value);
+}
