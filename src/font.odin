@@ -37,8 +37,8 @@ load_all_fonts :: proc() -> GameFonts {
 	mem_arena := init_arena_buffer(buffer[:])
 
         game_fonts : GameFonts
-	font_1_path := "G:\\projects\\game\\TheForge\\resources\\fonts\\Inter-Regular.ttf"
-	game_fonts.debug_font = load_ttf_font(font_1_path, 128.0, &mem_arena)
+	font_1_path := "G:\\projects\\game\\TheForge\\resources\\fonts\\FragmentMono-Regular.ttf"
+	game_fonts.debug_font = load_ttf_font(font_1_path, vh(5), &mem_arena)
         return game_fonts
 }
 
@@ -48,12 +48,20 @@ get_char_codepoint_bitmap_data :: proc(font: ^TTF_Font, char: rune) -> ^Codepoin
 	return bitmap_data
 }
 
-get_font_atlas_size :: proc(font_data: ^TTF_Font, font_info: ^stbtt.fontinfo) {
+get_font_atlas_size :: proc(font_data: ^TTF_Font, stb_font_info: ^stbtt.fontinfo) {
         current_x : i32 = 0
-        for i := 0; i < 96; i += 1 {
+        {      
+                char := cast(rune)(32)  // spacebar
+                width := i32(font_data.font_size_px) / 4
+                height := i32(font_data.font_size_px)
+                current := CodepointBitmapInfo{char, width, height, 0, 0, {}, {}}
+                font_data.codepoints[0] = current
+                current_x += width
+        }
+        for i := 1; i < 96; i += 1 {
                 char := cast(rune)(i + 32)
                 xoff, yoff, ix1, iy1: c.int
-                stbtt.GetCodepointBitmapBox(font_info, char, font_data.font_scaling, font_data.font_scaling, &xoff, &yoff, &ix1, &iy1)
+                stbtt.GetCodepointBitmapBox(stb_font_info, char, font_data.font_scaling, font_data.font_scaling, &xoff, &yoff, &ix1, &iy1)
                 width := ix1 - xoff
                 height := iy1 - yoff
                 current := CodepointBitmapInfo{char, width, height, xoff, yoff, {}, {}}
@@ -73,7 +81,6 @@ load_ttf_font :: proc(filepath: string, font_height_px: f32, mem_arena: ^virtual
         if !success {
                 fmt.println("ERROR: InitFont()")
         }
-
         font_scaling := stbtt.ScaleForPixelHeight(&stb_font_info, font_height_px)
         font_data.font_scaling = font_scaling
         get_font_atlas_size(&font_data, &stb_font_info) 
@@ -81,22 +88,37 @@ load_ttf_font :: proc(filepath: string, font_height_px: f32, mem_arena: ^virtual
         return font_data
 }
 
-build_font_atlas_bitmap :: proc(font_data: ^TTF_Font, font_info: ^stbtt.fontinfo) {
+build_font_atlas_bitmap :: proc(font_data: ^TTF_Font, stb_font_info: ^stbtt.fontinfo) {
         current_x : i32 = 0
         bitmap_width := i32(font_data.texture_atlas_size.x)
         bitmap_height := i32(font_data.texture_atlas_size.y)
         atlas_bitmap := make([]u8, bitmap_width * bitmap_height)
         defer delete(atlas_bitmap)
-
-        for i := 0; i < 96; i += 1 {
+        {       // spacebar
+                width := font_data.codepoints[0].width
+                for i : i32 = 0; i < (i32(font_data.font_size_px) - 1); i += 1 {
+                        dest_offset := (i * bitmap_width) + current_x
+                        dest := &atlas_bitmap[dest_offset]
+                        mem.set(dest, 0x00, int(width))
+                }
+                uv_botleft_x : f32 = f32(current_x) / f32(bitmap_width)
+                uv_topright_x : f32 = f32(current_x) + (font_data.font_size_px / 4) / f32(bitmap_width)
+                uv_topright_y : f32 = font_data.font_size_px
+                current := &font_data.codepoints[0]
+                current.glyph_uv_bot_left = {uv_botleft_x, 0.0}
+                current.glyph_uv_top_right = {uv_topright_x, uv_topright_y}
+                current_x += i32(width)
+        }
+        for i := 1; i < 96; i += 1 {
                 char := cast(rune)(i + 32)
                 width, height, xoff, yoff: c.int
-                bitmap := stbtt.GetCodepointBitmap(font_info, 0, font_data.font_scaling, char, &width, &height, &xoff, &yoff)
+                bitmap := stbtt.GetCodepointBitmap(stb_font_info, 0, font_data.font_scaling, char, &width, &height, &xoff, &yoff)
                 atlas_offset := bitmap_height - height
                 y_offset := height + yoff
                 dest_offset_start := i32(bitmap_width * (bitmap_height - 1 - atlas_offset)) + current_x
-                for i : i32 = 0; i < (height - 1); i += 1 {
-                        src_offset := (width * height) - width * (i + 1)
+                max_height := i32(font_data.font_size_px) if i32(font_data.font_size_px) <= (height - 1) else height
+                for i : i32 = 0; i < max_height; i += 1 {
+                        src_offset := (width * (height - i - 1))
                         source := &bitmap[src_offset]
                         dest_offset := (i * bitmap_width) + current_x
                         dest := &atlas_bitmap[dest_offset]
@@ -123,7 +145,7 @@ create_font_atlas_texture :: proc(font_data: ^TTF_Font, atlas_bitmap: []byte) {
         gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RED, i32(font_data.texture_atlas_size.x), i32(font_data.texture_atlas_size.y), 0, gl.RED, gl.UNSIGNED_BYTE, raw_data(atlas_bitmap[:]))
         gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
         gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-        gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+        gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
         gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
         gl.PixelStorei(gl.UNPACK_ALIGNMENT, 4)
 }

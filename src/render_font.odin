@@ -66,9 +66,7 @@ draw_character :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, ch
         gl.BindVertexArray(0)
 }
 
-printed := false
-
-draw_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: string) {
+draw_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: string, end_in_newline:= false) -> (cursor_next: Vec2) {
         gl.BindBuffer(gl.ARRAY_BUFFER, game_shaders.ui_text.vbo)
         current_cursor := cursor_ndc
         for char, i in text {
@@ -81,9 +79,6 @@ draw_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: s
                 x1 : f32 = x0 + width_ndc
                 y0 : f32 = current_cursor.y - yoff_ndc
                 y1 : f32 = y0 + height_ndc
-                if !printed {
-                        fmt.println(bitmap_info.char, bitmap_info.width, "x", bitmap_info.height, ",", bitmap_info.xoff, "&", bitmap_info.yoff)
-                }
                 font_vertices := []f32 {
                         // Coords       // Color                        // UV
                         x0, y1, 1.0,    color.r, color.g, color.b,      bitmap_info.glyph_uv_bot_left.x,  bitmap_info.glyph_uv_top_right.y, // topleft
@@ -99,7 +94,6 @@ draw_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: s
                 gl.BufferSubData(gl.ARRAY_BUFFER, offset, bytes, raw_data(font_vertices[:]))
                 current_cursor.x += width_ndc + xoff_ndc
         }
-        printed = true
         gl.BindVertexArray(game_shaders.ui_text.vao)
         gl.UseProgram(game_shaders.ui_text.shader_id)
         gl.BindTexture(gl.TEXTURE_2D, font_data.texture_atlas_id)
@@ -108,4 +102,11 @@ draw_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: s
 
         gl.BindBuffer(gl.ARRAY_BUFFER, 0)
         gl.BindVertexArray(0)
+
+        if end_in_newline {
+                current_cursor.x = cursor_ndc.x
+                current_cursor.y = current_cursor.y - get_px_height_to_ndc(font_data.font_size_px)
+        }
+
+        return current_cursor
 }

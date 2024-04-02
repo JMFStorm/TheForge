@@ -89,6 +89,10 @@ main :: proc() {
 		if game_controls.keyboard.keys[.v].pressed { 
                         display_allocations_tracker(&mem_tracker) 
                 }
+                if game_controls.keyboard.keys[.e].pressed {
+                        game_fonts = load_all_fonts()
+                        fmt.println("Reloaded fonts.")
+                }
 		button1_dimensions := ui_rect2d_anchored_to_ndc(.top_left, {vw(2.5), vh(2.5)}, {vh(20), vh(15)})
 		if imui_menu_button(button1_dimensions) { 
                         fmt.println("Button1") 
@@ -104,14 +108,15 @@ main :: proc() {
 	        draw_rect_2d({{-0.75, -0.75}, {-0.25, -0.25}}, {1.0, 0.5, 0.0})
 	        draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
 
-	        rect1_dimensions := ui_rect2d_anchored_to_ndc(.bot_left, {vw(-80), vh(1)}, {vw(180), vh(25)})
+	        rect1_dimensions := ui_rect2d_anchored_to_ndc(.bot_left, {vw(1), vh(1)}, {vw(260), vh(25)})
 	        draw_rect_2d(rect1_dimensions, {1.0, 1.0, 1.0}, game_fonts.debug_font.texture_atlas_id)
 
 	        char1_dimensions := ui_rect2d_anchored_to_ndc(.top_right, {vh(12), vh(12)}, {vh(20), vh(25)})
 	        draw_character(char1_dimensions.bot_left, {0.0, 1.0 , 0.0}, &game_fonts.debug_font, 'P')
 
-                text1_dimensions := ui_rect2d_anchored_to_ndc(.top_left, {vh(2), vh(25)}, {vh(40), vh(15)})
-                draw_text(text1_dimensions.bot_left, {0.8, 0.8, 0.8}, &game_fonts.debug_font, "!#%&/()=?123asdfghjl")
+                start := ui_rect2d_anchored_to_ndc(.top_left, {vh(2), vh(25)}, {vh(40), vh(15)})
+                cursor := draw_text(start.bot_left, {0.8, 0.8, 0.8}, &game_fonts.debug_font, "FPS: 165   Frame: 90001", true)
+                draw_text(cursor, {0.8, 0.8, 0.8}, &game_fonts.debug_font, "Delta: 6.66ms   Draw calls: 184")
 
 	        if draw_selection_box == true {
 		        draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
