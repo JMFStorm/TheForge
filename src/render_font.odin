@@ -110,3 +110,15 @@ draw_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: s
 
         return current_cursor
 }
+
+create_font_atlas_texture :: proc(font_data: ^TTF_Font, atlas_bitmap: []byte) {
+        gl.PixelStorei(gl.UNPACK_ALIGNMENT, 1)
+        gl.GenTextures(1, &font_data.texture_atlas_id)
+        gl.BindTexture(gl.TEXTURE_2D, font_data.texture_atlas_id)
+        gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RED, i32(font_data.texture_atlas_size.x), i32(font_data.texture_atlas_size.y), 0, gl.RED, gl.UNSIGNED_BYTE, raw_data(atlas_bitmap[:]))
+        gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+        gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+        gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+        gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+        gl.PixelStorei(gl.UNPACK_ALIGNMENT, 4)
+}

@@ -35,10 +35,9 @@ load_all_fonts :: proc() -> GameFonts {
 	buffer := make([]u8, mem.Megabyte * 20)
 	defer delete(buffer)
 	mem_arena := init_arena_buffer(buffer[:])
-
         game_fonts : GameFonts
 	font_1_path := "G:\\projects\\game\\TheForge\\resources\\fonts\\FragmentMono-Regular.ttf"
-	game_fonts.debug_font = load_ttf_font(font_1_path, vh(5), &mem_arena)
+	game_fonts.debug_font = load_ttf_font(font_1_path, max(vh(1.0), 16.0), &mem_arena)
         return game_fonts
 }
 
@@ -136,16 +135,4 @@ build_font_atlas_bitmap :: proc(font_data: ^TTF_Font, stb_font_info: ^stbtt.font
                 current_x += width
         }
         create_font_atlas_texture(font_data, atlas_bitmap)
-}
-
-create_font_atlas_texture :: proc(font_data: ^TTF_Font, atlas_bitmap: []byte) {
-        gl.PixelStorei(gl.UNPACK_ALIGNMENT, 1)
-        gl.GenTextures(1, &font_data.texture_atlas_id)
-        gl.BindTexture(gl.TEXTURE_2D, font_data.texture_atlas_id)
-        gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RED, i32(font_data.texture_atlas_size.x), i32(font_data.texture_atlas_size.y), 0, gl.RED, gl.UNSIGNED_BYTE, raw_data(atlas_bitmap[:]))
-        gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-        gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-        gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-        gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-        gl.PixelStorei(gl.UNPACK_ALIGNMENT, 4)
 }

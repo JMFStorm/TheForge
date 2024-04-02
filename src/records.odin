@@ -40,6 +40,10 @@ GameControls :: struct {
 	keyboard: KeyboardControls,
 }
 
+GameLogicState :: struct {
+        frames: int
+}
+
 GameWindow :: struct {
 	handle: glfw.WindowHandle,
 	size_px: Vec2,
