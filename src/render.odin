@@ -58,8 +58,6 @@ create_simple_shader :: proc(vs_path, fs_path: string, mem_arena: ^virtual.Arena
         vao, vbo : u32
         gl.GenVertexArrays(1, &vao)
         gl.GenBuffers(1, &vbo)
-        gl.BindVertexArray(vao)
-        gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
         return {vbo, vao, shader_id}
 }
 
@@ -74,6 +72,7 @@ load_all_shaders :: proc() -> GameShaders {
 	shaders.simple_rectangle_2d = init_simple_rectangle_2d_shader(&mem_arena)
         shaders.line_2d = init_line_2d_shader(&mem_arena)
         shaders.ui_text = init_ui_text_shader(&mem_arena)
+
 	return shaders
 }
 

@@ -11,7 +11,6 @@ init_ui_text_shader :: proc(mem_arena: ^virtual.Arena) -> SimpleShader {
 
         gl.BindVertexArray(shader.vao)
         gl.BindBuffer(gl.ARRAY_BUFFER, shader.vbo)
-    
         ui_text_vertex_buffer_size := RECTANGLE_2D_VERTICIES * size_of(f32) * MAX_BUFFERED_UI_CHARACTERS
         gl.BufferData(gl.ARRAY_BUFFER, ui_text_vertex_buffer_size, nil, gl.DYNAMIC_DRAW)
         // xyz
@@ -30,20 +29,20 @@ init_ui_text_shader :: proc(mem_arena: ^virtual.Arena) -> SimpleShader {
         return shader
 }
 
-get_px__width_to_ndc :: proc(px_x: f32) -> f32 {
+get_px_width_to_ndc :: proc(px_x: f32) -> f32 {
         ndc_x := (px_x / game_window.size_px.x) * 2
         return ndc_x
 }
 
-get_px__height_to_ndc :: proc(px_y: f32) -> f32 {
+get_px_height_to_ndc :: proc(px_y: f32) -> f32 {
         ndc_y := (px_y / game_window.size_px.y) * 2
         return ndc_y
 }
 
 draw_character :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, char: rune) {
         bitmap_info := get_char_codepoint_bitmap_data(font_data, char)
-        width_ndc := get_px__width_to_ndc(f32(bitmap_info.width))
-        height_ndc := get_px__height_to_ndc(f32(bitmap_info.height))
+        width_ndc := get_px_width_to_ndc(f32(bitmap_info.width))
+        height_ndc := get_px_height_to_ndc(f32(bitmap_info.height))
         ndc_top_right := cursor_ndc + {width_ndc, height_ndc}
         font_vertices := []f32 {
     	        // Coords 	                        // Color                    // UV
@@ -57,9 +56,56 @@ draw_character :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, ch
         }
         gl.BindVertexArray(game_shaders.ui_text.vao)
         gl.BindBuffer(gl.ARRAY_BUFFER, game_shaders.ui_text.vbo)
-        gl.BufferData(gl.ARRAY_BUFFER, len(font_vertices) * size_of(f32), raw_data(font_vertices[:]), gl.DYNAMIC_DRAW)
+        gl.BufferSubData(gl.ARRAY_BUFFER, 0, len(font_vertices) * size_of(f32), raw_data(font_vertices[:]))
 
         gl.UseProgram(game_shaders.ui_text.shader_id)
         gl.BindTexture(gl.TEXTURE_2D, font_data.texture_atlas_id)
         gl.DrawArrays(gl.TRIANGLES, 0, 6)
+
+        gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+        gl.BindVertexArray(0)
+}
+
+printed := false
+
+draw_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: string) {
+        gl.BindBuffer(gl.ARRAY_BUFFER, game_shaders.ui_text.vbo)
+        current_cursor := cursor_ndc
+        for char, i in text {
+                bitmap_info := get_char_codepoint_bitmap_data(font_data, char)
+                width_ndc := get_px_width_to_ndc(f32(bitmap_info.width))
+                height_ndc := get_px_height_to_ndc(f32(bitmap_info.height))
+                xoff_ndc := get_px_width_to_ndc(f32(bitmap_info.xoff))
+                yoff_ndc := get_px_height_to_ndc(f32(bitmap_info.height + bitmap_info.yoff))
+                x0 : f32 = current_cursor.x + xoff_ndc
+                x1 : f32 = x0 + width_ndc
+                y0 : f32 = current_cursor.y - yoff_ndc
+                y1 : f32 = y0 + height_ndc
+                if !printed {
+                        fmt.println(bitmap_info.char, bitmap_info.width, "x", bitmap_info.height, ",", bitmap_info.xoff, "&", bitmap_info.yoff)
+                }
+                font_vertices := []f32 {
+                        // Coords       // Color                        // UV
+                        x0, y1, 1.0,    color.r, color.g, color.b,      bitmap_info.glyph_uv_bot_left.x,  bitmap_info.glyph_uv_top_right.y, // topleft
+                        x1, y1, 1.0,    color.r, color.g, color.b,      bitmap_info.glyph_uv_top_right.x, bitmap_info.glyph_uv_top_right.y, // topright
+                        x0, y0, 1.0,    color.r, color.g, color.b,      bitmap_info.glyph_uv_bot_left.x,  bitmap_info.glyph_uv_bot_left.y,  // botleft 
+
+                        x0, y0, 1.0,    color.r, color.g, color.b,      bitmap_info.glyph_uv_bot_left.x,  bitmap_info.glyph_uv_bot_left.y,  // botleft 
+                        x1, y0, 1.0,    color.r, color.g, color.b,      bitmap_info.glyph_uv_top_right.x, bitmap_info.glyph_uv_bot_left.y,  // botright
+                        x1, y1, 1.0,    color.r, color.g, color.b,      bitmap_info.glyph_uv_top_right.x, bitmap_info.glyph_uv_top_right.y, // topright
+                }
+                bytes := len(font_vertices) * size_of(f32)
+                offset := i * bytes
+                gl.BufferSubData(gl.ARRAY_BUFFER, offset, bytes, raw_data(font_vertices[:]))
+                current_cursor.x += width_ndc + xoff_ndc
+        }
+        printed = true
+        gl.BindVertexArray(game_shaders.ui_text.vao)
+        gl.UseProgram(game_shaders.ui_text.shader_id)
+        gl.BindTexture(gl.TEXTURE_2D, font_data.texture_atlas_id)
+        verticies := i32(len(text)) * 6
+        gl.DrawArrays(gl.TRIANGLES, 0, verticies)
+
+        gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+        gl.BindVertexArray(0)
 }

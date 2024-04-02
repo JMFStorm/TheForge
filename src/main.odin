@@ -110,6 +110,9 @@ main :: proc() {
 	        char1_dimensions := ui_rect2d_anchored_to_ndc(.top_right, {vh(12), vh(12)}, {vh(20), vh(25)})
 	        draw_character(char1_dimensions.bot_left, {0.0, 1.0 , 0.0}, &game_fonts.debug_font, 'P')
 
+                text1_dimensions := ui_rect2d_anchored_to_ndc(.top_left, {vh(2), vh(25)}, {vh(40), vh(15)})
+                draw_text(text1_dimensions.bot_left, {0.8, 0.8, 0.8}, &game_fonts.debug_font, "!#%&/()=?123asdfghjl")
+
 	        if draw_selection_box == true {
 		        draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
 	        }

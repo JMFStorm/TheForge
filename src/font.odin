@@ -38,7 +38,7 @@ load_all_fonts :: proc() -> GameFonts {
 
         game_fonts : GameFonts
 	font_1_path := "G:\\projects\\game\\TheForge\\resources\\fonts\\Inter-Regular.ttf"
-	game_fonts.debug_font = load_ttf_font(font_1_path, 32.0, &mem_arena)
+	game_fonts.debug_font = load_ttf_font(font_1_path, 128.0, &mem_arena)
         return game_fonts
 }
 
