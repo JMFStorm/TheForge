@@ -22,24 +22,13 @@ deallocate_all_memory :: proc() {
 }
 
 display_allocations_tracker :: proc(a: ^mem.Tracking_Allocator) {
-    log_debug("Displaying all tracked memory allocations:")
-	for key, value in a.allocation_map {
-                str := fmt.tprint("- Allocation:", value.location, "bytes:", value.size)
-		log_debug(str)
-	}
-}
-
-display_allocations_tracker_program_end :: proc(a: ^mem.Tracking_Allocator) {
-	if 0 < len(a.allocation_map) {
-		log_debug("Program end, memory leaks:")
-		for key, value in a.allocation_map {
-                        str := fmt.tprint("- Allocation:", value.location, "bytes:", value.size)
-			log_debug(str)
-		}
-	}
-	else {
-		log_debug("Program end, no memory leaks found.")
-	}
+        log_debug("Tracked memory allocations:")
+        for _, leak in a.allocation_map {
+                log_debug(fmt.tprintf("- %v leaked %m", leak.location, leak.size))
+        }
+        for bad_free in a.bad_free_array {
+                log_debug(fmt.tprintf("- %v allocation %p was freed badly", bad_free.location, bad_free.memory))
+        }
 }
 
 load_all_textures :: proc() -> map[string]TextureData {

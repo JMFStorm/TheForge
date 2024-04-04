@@ -43,7 +43,7 @@ main :: proc() {
 	when ODIN_DEBUG {
 		mem.tracking_allocator_init(&mem_tracker, context.allocator)
 		context.allocator = mem.tracking_allocator(&mem_tracker)
-		defer display_allocations_tracker_program_end(&mem_tracker)
+		defer display_allocations_tracker(&mem_tracker)
 		defer deallocate_all_memory()
                 context.logger = create_debug_build_logger(logger_data)
                 log_info("Game started. Debug build.")

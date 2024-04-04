@@ -15,7 +15,7 @@ GameFileInfo :: struct {
 }
 
 set_game_file_info :: proc() {
-        set_executable_fullpath()
+        set_executable_fullpath(context.temp_allocator)
         set_executable_dirpath()
         set_resources_dirpath()
 }
