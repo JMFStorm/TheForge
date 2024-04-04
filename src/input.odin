@@ -5,7 +5,6 @@ import glfw "vendor:glfw"
 set_game_controls_state :: proc() {
 	x, y := glfw.GetCursorPos(game_window.handle);
 	game_controls.mouse.window_pos = {f32(x), f32(y)}
-
 	for _, &button_state in game_controls.mouse.buttons {
 		state := glfw.GetMouseButton(game_window.handle, button_state.key)
 		if state == glfw.PRESS {
@@ -16,7 +15,6 @@ set_game_controls_state :: proc() {
 			button_state.is_down = false
 		}
 	}
-
 	for _, &key_state in game_controls.keyboard.keys {
 		state := glfw.GetKey(game_window.handle, key_state.key)
 		if state == glfw.PRESS {

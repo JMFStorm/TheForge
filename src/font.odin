@@ -78,12 +78,13 @@ load_ttf_font :: proc(filepath: string, font_height_px: f32, mem_arena: ^virtual
         stb_font_info: stbtt.fontinfo
         success := stbtt.InitFont(&stb_font_info, raw_data(file_buffer[:]), 0)
         if !success {
-                fmt.println("ERROR: InitFont()")
+                log_and_panic("ERROR: InitFont()")
         }
         font_scaling := stbtt.ScaleForPixelHeight(&stb_font_info, font_height_px)
         font_data.font_scaling = font_scaling
         get_font_atlas_size(&font_data, &stb_font_info) 
         build_font_atlas_bitmap(&font_data, &stb_font_info)
+        log_debug("Loaded font", filepath, "with font size", font_height_px)
         return font_data
 }
 

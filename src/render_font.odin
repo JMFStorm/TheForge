@@ -25,7 +25,7 @@ init_ui_text_shader :: proc(mem_arena: ^virtual.Arena) -> SimpleShader {
 
         gl.BindBuffer(gl.ARRAY_BUFFER, 0)
         gl.BindVertexArray(0)
-        fmt.println("Loaded ui text shader.")
+        log_debug("Loaded ui text shader.")
         return shader
 }
 

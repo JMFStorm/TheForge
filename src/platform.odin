@@ -11,7 +11,7 @@ import stbi "vendor:stb/image"
 read_file_to_cstring :: proc(path: string, mem_arena: ^virtual.Arena) -> (cstring, int) {
     f_handle, error := os.open(path)
     if error != 0 {
-        panic("ERROR: Get file handle")
+        log_and_panic("Could not get file handle")
     }
     defer os.close(f_handle)
 
@@ -19,13 +19,13 @@ read_file_to_cstring :: proc(path: string, mem_arena: ^virtual.Arena) -> (cstrin
     virtual.arena_free_all(mem_arena)
     buffer, arena_error := virtual.arena_alloc(mem_arena, mem_arena.total_reserved, 8)
     if arena_error != nil {
-        panic("ERROR: Allocate memory arena")
+        log_and_panic("Could not allocate memory arena")
     }
     mem.zero(raw_data(buffer), RESERVE_STR_BYTES)
 
     bytes_read, read_error := os.read(f_handle, buffer[:])
     if read_error != 0 {
-        panic("ERROR: Read file")
+        log_and_panic("Could not read file")
     }
     cstr := cstring(raw_data(buffer))
     return cstr, bytes_read
@@ -34,17 +34,17 @@ read_file_to_cstring :: proc(path: string, mem_arena: ^virtual.Arena) -> (cstrin
 read_file_to_buffer :: proc(path: string, mem_arena: ^virtual.Arena) -> ^[]byte {
     f_handle, error := os.open(path)
     if error != 0 {
-        panic("ERROR: Get file handle")
+        log_and_panic("Could not get file handle")
     }
     defer os.close(f_handle)
     virtual.arena_free_all(mem_arena)
     buffer, arena_error := virtual.arena_alloc(mem_arena, mem_arena.total_reserved, 8)
     if arena_error != nil {
-        panic("ERROR: Allocate memory arena")
+        log_and_panic("Could not allocate memory arena")
     }
     bytes_read, read_error := os.read(f_handle, buffer[:])
     if read_error != 0 {
-        panic("ERROR: Read file")
+        log_and_panic("Could not read file")
     }
     return &buffer
 }
@@ -53,7 +53,7 @@ load_image_data :: proc(path: cstring) -> ImageData {
     x, y, channels: c.int
     stbi.set_flip_vertically_on_load(1)
     image_data := stbi.load(path, &x, &y, &channels, channels)
-    fmt.println(path, x, y, channels)
+    log_debug("Loaded image data:", path, x, y, channels)
     return ImageData{string(path), x, y, channels, image_data}
 }
 

@@ -30,7 +30,7 @@ init_simple_rectangle_2d_shader :: proc(mem_arena: ^virtual.Arena) -> SimpleShad
         gl.BindBuffer(gl.ARRAY_BUFFER, 0)
         gl.BindVertexArray(0)
 
-        fmt.println("Loaded rectangle 2d shader.")
+        log_debug("Loaded rectangle 2d shader.")
         return shader
 }
 
@@ -55,7 +55,7 @@ init_line_2d_shader :: proc(mem_arena: ^virtual.Arena) -> SimpleShader {
         gl.BindBuffer(gl.ARRAY_BUFFER, 0)
         gl.BindVertexArray(0)
 
-        fmt.println("Loaded line 2d shader.")
+        log_debug("Loaded line 2d shader.")
         return shader
 }
 

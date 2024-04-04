@@ -7,6 +7,7 @@ import stbtt "vendor:stb/truetype"
 import "core:c"
 import "core:os"
 import "core:fmt"
+import "core:log"
 import "core:mem"
 import "core:mem/virtual"
 
@@ -37,24 +38,31 @@ size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 
 main :: proc() {
 	when ODIN_DEBUG {
-		fmt.println("ODIN DEBUG BUILD")
 		mem.tracking_allocator_init(&mem_tracker, context.allocator)
 		context.allocator = mem.tracking_allocator(&mem_tracker)
 		defer display_allocations_tracker_program_end(&mem_tracker)
 		defer deallocate_all_memory()
+                context.logger = log.create_console_logger()
+                log_info("Game started. Debug build.")
 	}
-
+        else {
+                handle, open_error := os.open("./log.txt", os.O_WRONLY|os.O_TRUNC|os.O_CREATE)
+                if open_error != 0 {
+                        fmt.panicf("ERROR: Could not init file logger")
+                }
+                context.logger = log.create_file_logger(handle)
+                log_info("Game started. Release build.")
+        }
+        
 	if success := glfw.Init(); success == false {
-		fmt.println("ERROR: glfw.Init() failed.")
-		return
+                log_and_panic("glfw.Init() failed")
 	}
 	defer glfw.Terminate()
 
 	error: bool
 	game_window, error = init_game_window(1200, 900, "jmfg2d")
 	if error {
-		fmt.println("ERROR: init_game_window() failed.")
-		return
+		log_and_panic("init_game_window() failed")
 	}
 	defer glfw.DestroyWindow(game_window.handle)
 
@@ -93,11 +101,11 @@ main :: proc() {
                 }
                 if game_controls.keyboard.keys[.e].pressed {
                         game_fonts = load_all_fonts()
-                        fmt.println("Reloaded fonts.")
+                        log_debug("Reloaded fonts.")
                 }
 		button1_dimensions := ui_rect2d_anchored_to_ndc(.top_left, {vw(2.5), vh(2.5)}, {vh(20), vh(15)})
 		if imui_menu_button(button1_dimensions) { 
-                        fmt.println("Button1") 
+                        log_info("Button1") 
                 }
 
                 gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
@@ -118,6 +126,8 @@ main :: proc() {
                 glfw.SwapBuffers(game_window.handle)
                 game_logic_state.frames += 1
         }
+
+        log_info("Game terminated.")
 }
 
 display_debug_info :: proc() {
