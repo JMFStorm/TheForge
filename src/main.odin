@@ -10,6 +10,7 @@ import "core:fmt"
 import "core:log"
 import "core:mem"
 import "core:mem/virtual"
+import "base:runtime"
 
 draw_selection_box := false
 box_start_ndc : Vec2
@@ -42,15 +43,11 @@ main :: proc() {
 		context.allocator = mem.tracking_allocator(&mem_tracker)
 		defer display_allocations_tracker_program_end(&mem_tracker)
 		defer deallocate_all_memory()
-                context.logger = log.create_console_logger()
+                context.logger = create_debug_build_logger()
                 log_info("Game started. Debug build.")
 	}
         else {
-                handle, open_error := os.open("./log.txt", os.O_WRONLY|os.O_TRUNC|os.O_CREATE)
-                if open_error != 0 {
-                        fmt.panicf("ERROR: Could not init file logger")
-                }
-                context.logger = log.create_file_logger(handle)
+                context.logger = create_release_build_logger()
                 log_info("Game started. Release build.")
         }
         
@@ -105,7 +102,7 @@ main :: proc() {
                 }
 		button1_dimensions := ui_rect2d_anchored_to_ndc(.top_left, {vw(2.5), vh(2.5)}, {vh(20), vh(15)})
 		if imui_menu_button(button1_dimensions) { 
-                        log_info("Button1") 
+                        log_debug("Button1") 
                 }
 
                 gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)

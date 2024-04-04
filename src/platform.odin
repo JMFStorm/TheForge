@@ -53,7 +53,8 @@ load_image_data :: proc(path: cstring) -> ImageData {
     x, y, channels: c.int
     stbi.set_flip_vertically_on_load(1)
     image_data := stbi.load(path, &x, &y, &channels, channels)
-    log_debug("Loaded image data:", path, x, y, channels)
+    str := fmt.tprint("Loaded image data:", path, x, y, channels)
+    log_debug(str)
     return ImageData{string(path), x, y, channels, image_data}
 }
 

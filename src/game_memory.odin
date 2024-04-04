@@ -24,7 +24,8 @@ deallocate_all_memory :: proc() {
 display_allocations_tracker :: proc(a: ^mem.Tracking_Allocator) {
     log_debug("Displaying all tracked memory allocations:")
 	for key, value in a.allocation_map {
-		log_debug("- Allocation:", value.location, "bytes:", value.size)
+                str := fmt.tprint("- Allocation:", value.location, "bytes:", value.size)
+		log_debug(str)
 	}
 }
 
@@ -32,7 +33,8 @@ display_allocations_tracker_program_end :: proc(a: ^mem.Tracking_Allocator) {
 	if 0 < len(a.allocation_map) {
 		log_debug("Program end, memory leaks:")
 		for key, value in a.allocation_map {
-			log_debug("- Allocation:", value.location, "bytes:", value.size)
+                        str := fmt.tprint("- Allocation:", value.location, "bytes:", value.size)
+			log_debug(str)
 		}
 	}
 	else {

@@ -36,7 +36,8 @@ check_compilation_success :: proc(shader: u32) {
         gl.GetShaderiv(shader, gl.COMPILE_STATUS, &success);
         if bool(success) == gl.FALSE {
                 gl.GetShaderInfoLog(shader, 512, nil, raw_data(&infoLog))
-                log_and_panic("Shader compilation failed", string(infoLog[:]))
+                str := fmt.tprint("Shader compilation failed", string(infoLog[:]))
+                log_and_panic(str)
         }
 }
 
