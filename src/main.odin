@@ -38,27 +38,31 @@ size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 }
 
 main :: proc() {
+        logger_data := new(log.File_Console_Logger_Data)
+        defer free(logger_data)
 	when ODIN_DEBUG {
 		mem.tracking_allocator_init(&mem_tracker, context.allocator)
 		context.allocator = mem.tracking_allocator(&mem_tracker)
 		defer display_allocations_tracker_program_end(&mem_tracker)
 		defer deallocate_all_memory()
-                context.logger = create_debug_build_logger()
+                context.logger = create_debug_build_logger(logger_data)
                 log_info("Game started. Debug build.")
 	}
         else {
-                context.logger = create_release_build_logger()
+                context.logger = create_release_build_logger(logger_data)
                 log_info("Game started. Release build.")
         }
+
+        set_game_file_info()
         
 	if success := glfw.Init(); success == false {
                 log_and_panic("glfw.Init() failed")
 	}
 	defer glfw.Terminate()
 
-	error: bool
-	game_window, error = init_game_window(1200, 900, "jmfg2d")
-	if error {
+	window_error: bool
+	game_window, window_error = init_game_window(1200, 900, "jmfg2d")
+	if window_error {
 		log_and_panic("init_game_window() failed")
 	}
 	defer glfw.DestroyWindow(game_window.handle)
@@ -103,6 +107,7 @@ main :: proc() {
 		button1_dimensions := ui_rect2d_anchored_to_ndc(.top_left, {vw(2.5), vh(2.5)}, {vh(20), vh(15)})
 		if imui_menu_button(button1_dimensions) { 
                         log_debug("Button1") 
+                        log_info(game_file_info.exe_fullpath)
                 }
 
                 gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)

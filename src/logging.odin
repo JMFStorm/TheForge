@@ -5,8 +5,7 @@ import "core:runtime"
 import "core:os"
 import "core:fmt"
 
-create_debug_build_logger :: proc() -> log.Logger {
-	data := new(log.File_Console_Logger_Data)
+create_debug_build_logger :: proc(data: ^log.File_Console_Logger_Data) -> log.Logger {
 	data.file_handle = os.INVALID_HANDLE
 	data.ident = ""
         options := runtime.Logger_Options {
@@ -18,12 +17,11 @@ create_debug_build_logger :: proc() -> log.Logger {
 	return log.Logger{log.file_console_logger_proc, data, log.Level.Debug, options}
 }
 
-create_release_build_logger :: proc() -> log.Logger {
+create_release_build_logger :: proc(data: ^log.File_Console_Logger_Data) -> log.Logger {
         handle, open_error := os.open("./log.txt", os.O_WRONLY|os.O_TRUNC|os.O_CREATE)
         if open_error != 0 {
                 fmt.panicf("ERROR: Could not init file logger")
         }
-        data := new(log.File_Console_Logger_Data)
 	data.file_handle = handle
 	data.ident = ""
         options := runtime.Logger_Options {
@@ -38,7 +36,9 @@ create_release_build_logger :: proc() -> log.Logger {
 
 log_debug :: proc(text: string, location := #caller_location) {
         logger := context.logger
-        context.logger.procedure(logger.data, .Debug, text, logger.options, location)
+        if logger.lowest_level <= runtime.Logger_Level.Debug {
+                context.logger.procedure(logger.data, .Debug, text, logger.options, location)
+        }
 }
 
 log_info :: proc(text: string, location := #caller_location) {

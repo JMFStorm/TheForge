@@ -8,6 +8,18 @@ import "core:os"
 
 import stbi "vendor:stb/image"
 
+GameFileInfo :: struct {
+        exe_fullpath: string,
+        exe_dirpath: string,
+        resources_dirpath: string,
+}
+
+set_game_file_info :: proc() {
+        set_executable_fullpath()
+        set_executable_dirpath()
+        set_resources_dirpath()
+}
+
 read_file_to_cstring :: proc(path: string, mem_arena: ^virtual.Arena) -> (cstring, int) {
     f_handle, error := os.open(path)
     if error != 0 {
