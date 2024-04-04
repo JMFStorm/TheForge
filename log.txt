@@ -1,7 +1,0 @@
-[INFO ] --- [2024-04-04 14:08:35] [logging.odin:12:log_info()] ["Game started. Release build."]   G:/projects/game/TheForge/src/main.odin(54:17)
-[INFO ] --- [2024-04-04 14:08:36] [logging.odin:12:log_info()] ["Button1"]   G:/projects/game/TheForge/src/main.odin(108:25)
-[INFO ] --- [2024-04-04 14:08:36] [logging.odin:12:log_info()] ["Button1"]   G:/projects/game/TheForge/src/main.odin(108:25)
-[INFO ] --- [2024-04-04 14:08:37] [logging.odin:12:log_info()] ["Button1"]   G:/projects/game/TheForge/src/main.odin(108:25)
-[INFO ] --- [2024-04-04 14:08:37] [logging.odin:12:log_info()] ["Button1"]   G:/projects/game/TheForge/src/main.odin(108:25)
-[INFO ] --- [2024-04-04 14:08:37] [logging.odin:12:log_info()] ["Button1"]   G:/projects/game/TheForge/src/main.odin(108:25)
-[INFO ] --- [2024-04-04 14:08:38] [logging.odin:12:log_info()] ["Game terminated."]   G:/projects/game/TheForge/src/main.odin(130:9)
