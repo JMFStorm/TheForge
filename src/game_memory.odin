@@ -19,14 +19,14 @@ debug_display_all_perma_strings :: proc() {
         log_debug(fmt.tprintf("Displaying all strings in permanent str storage (count:%d, bytes:%d):", str_perma_arena.strings_count, str_perma_arena.used))
         for i := 0; i < str_perma_arena.strings_count; i += 1 {
                 str_index := str_perma_arena.strings_indexes[i]
-                str_index_end := str_perma_arena.strings_indexes[i + 1]
-                current : []byte
+                str_index_end : int
                 if i == str_perma_arena.strings_count - 1 {
-                        current = str_perma_arena.data[str_index:str_perma_arena.used]
+                        str_index_end = str_perma_arena.used
                 }
                 else {
-                        current = str_perma_arena.data[str_index:str_index_end]
+                        str_index_end = str_perma_arena.strings_indexes[i + 1]
                 }
+                current := str_perma_arena.data[str_index:str_index_end]
                 log_debug(fmt.tprintf("-%d: %s", i, string(current)))
         }
 }
