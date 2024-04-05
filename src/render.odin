@@ -89,5 +89,6 @@ create_texture :: proc(data: ImageData) -> TextureData {
         gl.TexImage2D(gl.TEXTURE_2D, 0, format, data.width_px, data.height_px, 0, u32(format), gl.UNSIGNED_BYTE, data.data)
         gl.GenerateMipmap(gl.TEXTURE_2D)
         texture_name := filepath.short_stem(data.filename)
-        return {str_perma_copy(texture_name), texture_id, data.width_px, data.height_px, hasAlpha}
+        str_name := str_perma_copy(texture_name)
+        return {str_name, texture_id, data.width_px, data.height_px, hasAlpha}
 }

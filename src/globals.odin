@@ -3,6 +3,9 @@ package main
 import "core:mem"
 import glfw "vendor:glfw"
 
+str_perma_allocator : mem.Allocator
+str_perma_arena : StringArena
+
 mem_tracker : mem.Tracking_Allocator
 game_window : GameWindow
 

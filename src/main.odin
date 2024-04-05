@@ -53,7 +53,7 @@ main :: proc() {
                 context.logger = create_release_build_logger(logger_data)
                 log_info("Game started. Release build.")
         }
-
+        str_perma_allocator = init_str_perma_allocator(mem.Kilobyte * 512)
         set_game_file_info()
         free_all(context.temp_allocator)
         
@@ -101,7 +101,8 @@ main :: proc() {
                         draw_selection_box = false 
                 }
 		if game_controls.keyboard.keys[.v].pressed { 
-                        display_allocations_tracker(&mem_tracker) 
+                        display_allocations_tracker(&mem_tracker)
+                        debug_display_all_perma_strings()
                 }
                 if game_controls.keyboard.keys[.e].pressed {
                         game_fonts = load_all_fonts()
@@ -117,7 +118,7 @@ main :: proc() {
 	        gl.Clear(gl.COLOR_BUFFER_BIT)
 
                 rect1_dimensions := ui_rect2d_anchored_to_ndc(.bot_right, {vw(5), vh(5)}, {vh(20), vh(20)})
-	        draw_rect_2d(rect1_dimensions, {0.8, 0.4, 0.4}, game_textures["awesomeface"].texture_id)
+	        draw_rect_2d(rect1_dimensions, {0.8, 0.4, 0.4}, game_textures["wall"].texture_id)
                 draw_rect_2d({{0.75, 0.75}, {-0.25, -0.25}}, {1.0, 1.0, 0.6}, game_textures["wall"].texture_id)
 	        draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
 	        char1_dimensions := ui_rect2d_anchored_to_ndc(.top_right, {vh(12), vh(12)}, {vh(20), vh(25)})
