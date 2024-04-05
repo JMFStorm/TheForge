@@ -43,7 +43,19 @@ log_debug :: proc(text: string, location := #caller_location) {
 
 log_info :: proc(text: string, location := #caller_location) {
         logger := context.logger
-        context.logger.procedure(logger.data, .Info, text, logger.options, location)
+        if logger.lowest_level <= runtime.Logger_Level.Info {
+                context.logger.procedure(logger.data, .Info, text, logger.options, location)
+        }
+}
+
+log_warning :: proc(text: string, location := #caller_location) {
+        logger := context.logger
+        context.logger.procedure(logger.data, .Warning, text, logger.options, location)
+}
+
+log_error :: proc(text: string, location := #caller_location) {
+        logger := context.logger
+        context.logger.procedure(logger.data, .Error, text, logger.options, location)
 }
 
 log_and_panic :: proc(text: string, location := #caller_location) {

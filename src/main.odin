@@ -55,6 +55,7 @@ main :: proc() {
         }
 
         set_game_file_info()
+        free_all(context.temp_allocator)
         
 	if success := glfw.Init(); success == false {
                 log_and_panic("glfw.Init() failed")

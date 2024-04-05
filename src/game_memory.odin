@@ -23,12 +23,12 @@ deallocate_all_memory :: proc() {
 }
 
 display_allocations_tracker :: proc(a: ^mem.Tracking_Allocator) {
-        log_debug("Tracked memory allocations:")
+        log_debug("Displaying current memory allocations/leaks:")
         for _, leak in a.allocation_map {
-                log_debug(fmt.tprintf("- %v leaked %m", leak.location, leak.size))
+                log_warning(fmt.tprintf("- %v leaked %m", leak.location, leak.size))
         }
         for bad_free in a.bad_free_array {
-                log_debug(fmt.tprintf("- %v allocation %p was freed badly", bad_free.location, bad_free.memory))
+                log_warning(fmt.tprintf("- %v allocation %p was freed badly", bad_free.location, bad_free.memory))
         }
 }
 
