@@ -38,6 +38,7 @@ size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 }
 
 main :: proc() {
+        init_global_temporary_allocator(mem.Megabyte * 15)
         logger_data := new(log.File_Console_Logger_Data)
         defer free(logger_data)
 	when ODIN_DEBUG {
@@ -79,6 +80,7 @@ main :: proc() {
 	game_shaders = load_all_shaders()
 	game_controls = init_game_controls()
 	game_fonts = load_all_fonts()
+        free_all(context.temp_allocator)
 
 	imui_init()
 
@@ -113,7 +115,9 @@ main :: proc() {
                 gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
 	        gl.Clear(gl.COLOR_BUFFER_BIT)
 
-	        draw_rect_2d({{-0.75, -0.75}, {-0.25, -0.25}}, {1.0, 0.5, 0.0})
+                rect1_dimensions := ui_rect2d_anchored_to_ndc(.bot_right, {vw(5), vh(5)}, {vh(20), vh(20)})
+	        draw_rect_2d(rect1_dimensions, {0.8, 0.4, 0.4}, game_textures["awesomeface"].texture_id)
+                draw_rect_2d({{0.75, 0.75}, {-0.25, -0.25}}, {1.0, 1.0, 0.6}, game_textures["wall"].texture_id)
 	        draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
 	        char1_dimensions := ui_rect2d_anchored_to_ndc(.top_right, {vh(12), vh(12)}, {vh(20), vh(25)})
 	        draw_character(char1_dimensions.bot_left, {0.0, 1.0 , 0.0}, &game_fonts.debug_font, 'P')

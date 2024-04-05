@@ -5,6 +5,7 @@ import glfw "vendor:glfw"
 import "core:fmt"
 import "core:mem"
 import "core:mem/virtual"
+import "core:strings"
 
 init_arena_buffer :: proc(buffer: []u8) -> virtual.Arena {
     arena : virtual.Arena
@@ -32,13 +33,10 @@ display_allocations_tracker :: proc(a: ^mem.Tracking_Allocator) {
 }
 
 load_all_textures :: proc() -> map[string]TextureData {
-	buffer := make([]u8, mem.Megabyte * 20)
-	defer delete(buffer)
-	mem_arena := init_arena_buffer(buffer[:])
-	image_data := load_image_data("G:\\projects\\game\\TheForge\\resources\\images\\wall.jpg")
+	image_data := load_image_data("wall.jpg")
 	texture_1 := create_texture(image_data)
 	free_image_data(&image_data)
-	image_data2 := load_image_data("G:\\projects\\game\\TheForge\\resources\\images\\awesomeface.png")
+	image_data2 := load_image_data("awesomeface.png")
 	texture_2 := create_texture(image_data2)
 	free_image_data(&image_data2)
 	game_textures := make(map[string]TextureData)
@@ -54,4 +52,13 @@ init_game_controls :: proc() -> GameControls {
 	controls.keyboard.keys[.e] = {glfw.KEY_E, false, false} 
 	controls.keyboard.keys[.v] = {glfw.KEY_V, false, false} 
 	return controls
+}
+
+str_perma_copy :: proc(str: string) -> string {
+        perma_str_allocator := context.allocator // Replace
+        copied, err := strings.clone(str, perma_str_allocator)
+        if err != nil {
+                log_and_panic("Failed to strcopy executable path")
+        }
+        return copied
 }

@@ -2,32 +2,20 @@ package main
 
 import "core:c"
 import "core:fmt"
+import "core:path/filepath"
 import "core:strings"
 import win32 "core:sys/windows"
 
-set_executable_dirpath :: proc() {
+wchar_str_to_string :: proc(wchar_str: win32.LPCWSTR, temp_allocator := context.temp_allocator) -> string {
+        length := win32.WideCharToMultiByte(win32.CP_UTF8, 0, wchar_str, -1, nil, 0, nil, nil)
+        byte_buffer := make([]byte, int(length), temp_allocator)
+        bytes := win32.WideCharToMultiByte(win32.CP_UTF8, 0, wchar_str, -1, raw_data(byte_buffer), length, nil, nil)
+        if bytes > 0 { bytes -= 1 }
+        return string(byte_buffer[:bytes])
 }
 
-set_resources_dirpath :: proc() {
-}
-
-set_executable_fullpath :: proc(temp_allocator := context.allocator) {
+get_executable_fullpath :: proc(temp_allocator := context.temp_allocator) -> string {
         buffer := make([]win32.WCHAR, 255, temp_allocator)
         win32.GetModuleFileNameW(nil, raw_data(buffer), 255)
-        length := win32.WideCharToMultiByte(win32.CP_UTF8, 0, raw_data(buffer), -1, nil, 0, nil, nil)
-        buffer_2 := make([]byte, int(length), temp_allocator)
-        n := win32.WideCharToMultiByte(win32.CP_UTF8, 0, raw_data(buffer), -1, raw_data(buffer_2), length, nil, nil)
-        if n > 0 {
-                n -= 1
-        }
-        path_as_string := string(buffer_2[:n])
-        perma_str_allocator := context.allocator // Replace
-        copied_str, err := strings.clone(path_as_string, perma_str_allocator)
-        if err != nil {
-                log_and_panic("Failed to strcopy executable path")
-        }
-        game_file_info.exe_fullpath = copied_str
-        str := fmt.tprint("Executable fullpath:", path_as_string)
-        log_info(str)
-        free_all(temp_allocator)
+        return wchar_str_to_string(raw_data(buffer), temp_allocator)
 }

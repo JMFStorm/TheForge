@@ -77,9 +77,9 @@ load_all_shaders :: proc() -> GameShaders {
 }
 
 create_texture :: proc(data: ImageData) -> TextureData {
-        texture : u32
-        gl.GenTextures(1, &texture)
-        gl.BindTexture(gl.TEXTURE_2D, texture);
+        texture_id : u32
+        gl.GenTextures(1, &texture_id)
+        gl.BindTexture(gl.TEXTURE_2D, texture_id);
         gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
         gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
         gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
@@ -89,5 +89,5 @@ create_texture :: proc(data: ImageData) -> TextureData {
         gl.TexImage2D(gl.TEXTURE_2D, 0, format, data.width_px, data.height_px, 0, u32(format), gl.UNSIGNED_BYTE, data.data)
         gl.GenerateMipmap(gl.TEXTURE_2D)
         texture_name := filepath.short_stem(data.filename)
-        return {texture_name, texture, data.width_px, data.height_px, hasAlpha}
+        return {str_perma_copy(texture_name), texture_id, data.width_px, data.height_px, hasAlpha}
 }
