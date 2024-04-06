@@ -99,6 +99,7 @@ display_allocations_tracker :: proc(a: ^mem.Tracking_Allocator) {
 }
 
 load_all_textures :: proc() -> map[string]TextureData {
+        set_image_load_flip_vertical(true)
 	image_data := load_image_data("wall.jpg")
 	texture_1 := create_texture(image_data)
 	free_image_data(&image_data)

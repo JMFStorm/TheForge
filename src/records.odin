@@ -95,10 +95,10 @@ Rect2D_px :: struct {
 
 ImageData :: struct {
 	filename: string,
-    width_px: i32,
-    height_px: i32,
-    channels: i32,
-    data: rawptr
+        width_px: i32,
+        height_px: i32,
+        channels: i32,
+        data: [^]byte
 }
 
 TextureData :: struct {

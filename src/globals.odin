@@ -1,6 +1,7 @@
 package main
 
 import "core:mem"
+import glfw "vendor:glfw"
 
 str_perma_allocator : mem.Allocator
 str_perma_arena : StringArena
@@ -18,3 +19,4 @@ game_textures : map[string]TextureData
 
 imui_buffers : ImUiBuffers
 game_fonts : GameFonts
+main_cursor : glfw.CursorHandle

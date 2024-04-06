@@ -3,6 +3,7 @@ package main
 import gl "vendor:OpenGL"
 import glfw "vendor:glfw"
 import stbtt "vendor:stb/truetype"
+import stbi "vendor:stb/image"
 
 import "core:c"
 import "core:os"
@@ -37,6 +38,15 @@ size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
         gl.Viewport(0, 0, width, height)
         game_window.size_px.x = f32(width)
         game_window.size_px.y = f32(height)
+}
+
+set_game_cursor :: proc() -> glfw.CursorHandle {
+        set_image_load_flip_vertical(false)
+        image_data := load_image_data("cursor_01.png")
+        i_data := glfw.Image{image_data.width_px, image_data.height_px, image_data.data}
+        cursor := glfw.CreateCursor(&i_data, 0, 0)
+        glfw.SetCursor(game_window.handle, cursor)
+        return cursor
 }
 
 main :: proc() {
@@ -79,6 +89,7 @@ main :: proc() {
 	gl.Enable(gl.BLEND)
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
+        main_cursor = set_game_cursor()
 	game_textures = load_all_textures()
 	game_shaders = load_all_shaders()
 	game_controls = init_game_controls()
@@ -101,7 +112,7 @@ main :: proc() {
 
                 if game_controls.keyboard.keys[.f].pressed {
                         log_debug("F pressed, to pay respect")
-                        if game_window.is_fullscreen {
+                        if glfw.GetWindowMonitor(game_window.handle) != nil {
                                 glfw.SetWindowMonitor(game_window.handle, nil, 100, 100, 1200, 900, glfw.DONT_CARE)
                                 game_window.is_fullscreen = false
                         }

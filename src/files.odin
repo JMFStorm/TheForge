@@ -109,11 +109,14 @@ read_file_to_buffer :: proc(path: string, mem_arena: ^virtual.Arena) -> ^[]byte 
 
 load_image_data :: proc(filename: string) -> ImageData {
     x, y, channels: c.int
-    stbi.set_flip_vertically_on_load(1)
     filepath := strings.concatenate({game_file_info.resources_dirpath, "\\images\\", filename}, context.temp_allocator)
-    image_data := stbi.load(strings.clone_to_cstring(filepath, context.temp_allocator), &x, &y, &channels, channels)
+    image_data := stbi.load(strings.clone_to_cstring(filepath, context.temp_allocator), &x, &y, &channels, 4)
     log_debug(fmt.tprint("Loaded image data:", filepath, x, y, channels))
     return ImageData{filename, x, y, channels, image_data}
+}
+
+set_image_load_flip_vertical :: proc(flipped: bool) {
+        stbi.set_flip_vertically_on_load(1 if flipped else 0)
 }
 
 free_image_data :: proc(data: ^ImageData) {
