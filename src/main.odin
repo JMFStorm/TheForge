@@ -91,10 +91,6 @@ main :: proc() {
 
 	for !glfw.WindowShouldClose(game_window.handle) && game_logic_state.game_running {
                 glfw.PollEvents()
-
-                fmt.println("game_window", game_window.size_px.x, game_window.size_px.y)
-                fmt.println("game_monitor", game_monitor.width, game_monitor.height)
-
 		set_game_frame_controls_state()
 
                 if game_controls.keyboard.keys[.v].pressed { 
@@ -119,79 +115,10 @@ main :: proc() {
 
                 switch game_logic_state.main_state {
                         case .main_menu: {
-                                switch game_logic_state.main_menu_state {
-                                        case .main_menu: {
-                                                // IMUI
-                                                imui_menu_title("Main menu", menu_text_size)
-                                                play_dimensions := ui_rect2d_anchored_to_ndc(.center, {0, vh(5)}, {vh(25), menu_text_size})
-                                                if imui_menu_button(play_dimensions, "Play", vh(5)) { 
-                                                        log_debug("Play game") 
-                                                        game_logic_state.main_state = .main_game
-                                                }
-                                                setings_dimensions := ui_rect2d_anchored_to_ndc(.center, {0, -vh(10)}, {vh(25), menu_text_size})
-                                                if imui_menu_button(setings_dimensions, "Settings", vh(5)) { 
-                                                        log_debug("Settings") 
-                                                        game_logic_state.main_menu_state = .settings
-                                                }
-                                                exit_rect := ui_rect2d_anchored_to_ndc(.center, {0, -vh(25)}, {vh(25), menu_text_size})
-                                                if imui_menu_button(exit_rect, "Exit", vh(5)) { 
-                                                        game_logic_state.game_running = false
-                                                }
-
-                                                // LOGIC
-                                                if game_controls.keyboard.keys[.esc].pressed {
-                                                        game_logic_state.game_running = false
-                                                }
-                                        }
-                                        case .settings: {
-                                                // IMUI
-                                                imui_menu_title("Settings", menu_text_size)
-                                                bo_back_rect := ui_rect2d_anchored_to_ndc(.center, {0, -vh(25)}, {vh(25), menu_text_size})
-                                                if imui_menu_button(bo_back_rect, "Go back", vh(5)) { 
-                                                        log_debug("Go back") 
-                                                        game_logic_state.main_menu_state = .main_menu
-                                                }
-
-                                                // LOGIC
-                                        }
-                                }
+                                main_menu_logic()
                         }
                         case .main_game: {
-                                switch game_logic_state.main_game_state {
-                                        case .main_game: {
-                                                // IMUI
-                                                if game_controls.mouse.buttons[.m1].is_down {
-                                                        draw_selection_box = true
-                                                        if game_controls.mouse.buttons[.m1].pressed {
-                                                                box_start_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
-                                                        }
-                                                        box_end_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
-                                                } 
-                                                else { 
-                                                        draw_selection_box = false 
-                                                }
-                                                if game_controls.keyboard.keys[.esc].pressed {
-                                                        log_debug("to pause") 
-                                                        game_logic_state.main_game_state = .pause_menu
-                                                }
-
-                                                // LOGIC
-                                        }
-                                        case .pause_menu: {
-                                                // IMUI
-                                                imui_menu_title("Pause menu", menu_text_size)
-                                                main_menu_rect := ui_rect2d_anchored_to_ndc(.center, {0, -vh(25)}, {vh(25), menu_text_size})
-                                                if imui_menu_button(main_menu_rect, "To main menu", vh(5)) {
-                                                        game_logic_state.main_state = .main_menu
-                                                }
-
-                                                // LOGIC
-                                                if game_controls.keyboard.keys[.esc].pressed {
-                                                        log_debug("to play game") 
-                                                        game_logic_state.main_game_state = .main_game
-                                                }
-                                        }
-                                }
+                                main_game_logic()
                         }
                 }
                 // DRAW SCREEN
