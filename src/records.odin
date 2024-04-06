@@ -68,11 +68,11 @@ GameLogicState :: struct {
 GameWindow :: struct {
 	handle: glfw.WindowHandle,
 	size_px: Vec2,
-	aspect_ratio_xy: f32,
         is_fullscreen: bool,
 }
 
 GameMonitor :: struct {
+        handle: glfw.MonitorHandle,
         width: i32,
         height: i32,
         refresh_rate: i32,

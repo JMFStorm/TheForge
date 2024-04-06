@@ -118,6 +118,7 @@ init_game_controls :: proc() -> GameControls {
 	controls.mouse.buttons[.m2] = {glfw.MOUSE_BUTTON_RIGHT, false, false}
 	controls.keyboard.keys[.e] = {glfw.KEY_E, false, false} 
 	controls.keyboard.keys[.v] = {glfw.KEY_V, false, false} 
+	controls.keyboard.keys[.f] = {glfw.KEY_F, false, false} 
 	controls.keyboard.keys[.esc] = {glfw.KEY_ESCAPE, false, false} 
 	return controls
 }

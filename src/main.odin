@@ -19,27 +19,24 @@ box_end_ndc : Vec2
 init_game_window :: proc() -> (window: GameWindow, error: bool) {
         monitor := glfw.GetPrimaryMonitor()
         mode := glfw.GetVideoMode(monitor)
-	glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR, GL_MAJOR_VERSION) 
+	glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR, GL_MAJOR_VERSION)
 	glfw.WindowHint(glfw.CONTEXT_VERSION_MINOR, GL_MINOR_VERSION)
 	glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-        glfw.WindowHint(glfw.DECORATED, glfw.FALSE); 
+        game_monitor.handle = monitor
         game_monitor.width = mode.width
         game_monitor.height = mode.height
         game_monitor.refresh_rate = mode.refresh_rate
-	window_handle := glfw.CreateWindow(mode.width, mode.height, "The Forge", nil, nil)
+	window_handle := glfw.CreateWindow(1200, 900, "The Forge", nil, nil)
 	if window_handle == nil {
 		return {}, true
 	}
-	aspect := f32(mode.width) / f32(mode.height)
-        glfw.SetWindowMonitor(window_handle, monitor, 0, 0, game_monitor.width, game_monitor.height, glfw.DONT_CARE)
-	return GameWindow{window_handle, {f32(mode.width), f32(mode.height)}, aspect, true}, false
+	return GameWindow{window_handle, {f32(1200), f32(900)}, false}, false
 }
 
 size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
         gl.Viewport(0, 0, width, height)
         game_window.size_px.x = f32(width)
         game_window.size_px.y = f32(height)
-        game_window.aspect_ratio_xy = f32(width) / f32(height)
 }
 
 main :: proc() {
@@ -95,6 +92,9 @@ main :: proc() {
 	for !glfw.WindowShouldClose(game_window.handle) && game_logic_state.game_running {
                 glfw.PollEvents()
 
+                fmt.println("game_window", game_window.size_px.x, game_window.size_px.y)
+                fmt.println("game_monitor", game_monitor.width, game_monitor.height)
+
 		set_game_frame_controls_state()
 
                 if game_controls.keyboard.keys[.v].pressed { 
@@ -104,12 +104,13 @@ main :: proc() {
                 }
 
                 if game_controls.keyboard.keys[.f].pressed {
+                        log_debug("F pressed, to pay respect")
                         if game_window.is_fullscreen {
-                                glfw.SetWindowMonitor(game_window.handle, nil, 0, 0, game_monitor.width, game_monitor.height, glfw.DONT_CARE)
+                                glfw.SetWindowMonitor(game_window.handle, nil, 100, 100, 1200, 900, glfw.DONT_CARE)
                                 game_window.is_fullscreen = false
                         }
                         else {
-                                glfw.SetWindowMonitor(game_window.handle, glfw.GetPrimaryMonitor(), 0, 0, game_monitor.width, game_monitor.height, glfw.DONT_CARE)
+                                glfw.SetWindowMonitor(game_window.handle, game_monitor.handle, 0, 0, game_monitor.width,  game_monitor.height, game_monitor.refresh_rate)
                                 game_window.is_fullscreen = true
                         }
                 }
@@ -194,7 +195,6 @@ main :: proc() {
                         }
                 }
                 // DRAW SCREEN
-                gl.Viewport(0, 0, game_monitor.width, game_monitor.height)
                 gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
                 gl.Clear(gl.COLOR_BUFFER_BIT)
                 if draw_selection_box == true {
