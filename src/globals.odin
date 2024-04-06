@@ -7,7 +7,7 @@ str_perma_arena : StringArena
 
 mem_tracker : mem.Tracking_Allocator
 game_window : GameWindow
-
+game_monitor : GameMonitor
 game_file_info : GameFileInfo
 
 game_logic_state : GameLogicState

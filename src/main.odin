@@ -16,26 +16,30 @@ draw_selection_box := false
 box_start_ndc : Vec2
 box_end_ndc : Vec2
 
-init_game_window :: proc(x, y: i32, title: cstring) -> (window: GameWindow, error: bool) {
-	// glfw.WindowHint(glfw.RESIZABLE, 0)
-	glfw.WindowHint(glfw.MAXIMIZED, 1)
+init_game_window :: proc() -> (window: GameWindow, error: bool) {
+        monitor := glfw.GetPrimaryMonitor()
+        mode := glfw.GetVideoMode(monitor)
 	glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR, GL_MAJOR_VERSION) 
 	glfw.WindowHint(glfw.CONTEXT_VERSION_MINOR, GL_MINOR_VERSION)
 	glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-	
-	window_handle := glfw.CreateWindow(x, y, title, nil, nil)
+        glfw.WindowHint(glfw.DECORATED, glfw.FALSE); 
+        game_monitor.width = mode.width
+        game_monitor.height = mode.height
+        game_monitor.refresh_rate = mode.refresh_rate
+	window_handle := glfw.CreateWindow(mode.width, mode.height, "The Forge", nil, nil)
 	if window_handle == nil {
 		return {}, true
 	}
-	aspect := f32(x) / f32(y)
-	return GameWindow{window_handle, {f32(x), f32(y)}, aspect}, false
+	aspect := f32(mode.width) / f32(mode.height)
+        glfw.SetWindowMonitor(window_handle, monitor, 0, 0, game_monitor.width, game_monitor.height, glfw.DONT_CARE)
+	return GameWindow{window_handle, {f32(mode.width), f32(mode.height)}, aspect}, false
 }
 
 size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
-	gl.Viewport(0, 0, width, height)
-	game_window.size_px.x = f32(width)
-	game_window.size_px.y = f32(height)
-	game_window.aspect_ratio_xy = f32(width) / f32(height)
+        gl.Viewport(0, 0, width, height)
+        game_window.size_px.x = f32(width)
+        game_window.size_px.y = f32(height)
+        game_window.aspect_ratio_xy = f32(width) / f32(height)
 }
 
 main :: proc() {
@@ -64,7 +68,7 @@ main :: proc() {
 	defer glfw.Terminate()
 
 	window_error: bool
-	game_window, window_error = init_game_window(1200, 900, "jmfg2d")
+	game_window, window_error = init_game_window()
 	if window_error {
 		log_and_panic("init_game_window() failed")
 	}
@@ -123,6 +127,9 @@ main :: proc() {
                                                 }
 
                                                 // LOGIC
+                                                if game_controls.keyboard.keys[.esc].pressed {
+                                                        game_logic_state.game_running = false
+                                                }
                                         }
                                         case .settings: {
                                                 // IMUI
@@ -176,6 +183,7 @@ main :: proc() {
                         }
                 }
                 // DRAW SCREEN
+                gl.Viewport(0, 0, game_monitor.width, game_monitor.height)
                 gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
                 gl.Clear(gl.COLOR_BUFFER_BIT)
                 if draw_selection_box == true {

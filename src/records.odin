@@ -70,6 +70,12 @@ GameWindow :: struct {
 	aspect_ratio_xy: f32,
 }
 
+GameMonitor :: struct {
+        width: i32,
+        height: i32,
+        refresh_rate: i32,
+} 
+
 Line2D_NDC :: struct {
 	start: Vec2,
 	end: Vec2,
