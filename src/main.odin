@@ -18,6 +18,7 @@ box_end_ndc : Vec2
 
 init_game_window :: proc(x, y: i32, title: cstring) -> (window: GameWindow, error: bool) {
 	// glfw.WindowHint(glfw.RESIZABLE, 0)
+	glfw.WindowHint(glfw.MAXIMIZED, 1)
 	glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR, GL_MAJOR_VERSION) 
 	glfw.WindowHint(glfw.CONTEXT_VERSION_MINOR, GL_MINOR_VERSION)
 	glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
@@ -98,7 +99,7 @@ main :: proc() {
                         load_all_fonts()
                 }
 
-                menu_text_size := vh(7.5)
+                menu_text_size = vh(7.5)
 
                 switch game_logic_state.main_state {
                         case .main_menu: {
