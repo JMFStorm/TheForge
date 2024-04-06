@@ -94,7 +94,14 @@ imui_menu_button :: proc(dimensions: Rect2D_NDC, text: string, font_size: f32) -
         if on_hover {
                 buffer_imui_rect_2d(dimensions, {1.0, 0.2, 0.2})
         }
-        buffer_imui_text(dimensions.bot_left, {0, 0, 0}, &game_fonts.debug_font, text, font_size)
+        if 0 < len(text) {
+                text_width := get_font_text_width_px(&game_fonts.debug_font, text, font_size)
+                button_center := dimensions.bot_left + ((dimensions.top_right - dimensions.bot_left) / 2)
+                text_x_offset :=  get_px_width_to_ndc(f32(text_width / 2))
+                text_y_offset :=  get_px_height_to_ndc(font_size / 4)
+                button_text_start := Vec2{button_center.x - text_x_offset, button_center.y - text_y_offset}
+                buffer_imui_text(button_text_start, {0, 0, 0}, &game_fonts.debug_font, text, font_size)
+        }
         return on_click
 }
 

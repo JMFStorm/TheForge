@@ -49,6 +49,18 @@ get_char_codepoint_bitmap_data :: proc(font: ^TTF_Font, char: rune) -> ^Codepoin
 	return bitmap_data
 }
 
+get_font_text_width_px :: proc(font_data: ^TTF_Font, text: string, font_size_px: f32) -> int {
+        font_scale := font_size_px / font_data.font_size_px
+        width_px : f32 = 0
+        text_len := len(text)
+        for c, i in text {
+                data := get_char_codepoint_bitmap_data(font_data, c)
+                advance := f32(data.width + data.xoff)
+                width_px += advance * font_scale
+        }
+        return int(width_px)
+}
+
 get_font_atlas_size :: proc(font_data: ^TTF_Font, stb_font_info: ^stbtt.fontinfo) {
         current_x : i32 = 0
         {      

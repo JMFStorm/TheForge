@@ -90,7 +90,7 @@ main :: proc() {
 	for !glfw.WindowShouldClose(game_window.handle) && game_logic_state.game_running {
                 glfw.PollEvents()
 
-		set_game_controls_state()
+		set_game_frame_controls_state()
 
                 if game_controls.keyboard.keys[.v].pressed { 
                         display_allocations_tracker(&mem_tracker)
@@ -100,21 +100,26 @@ main :: proc() {
 
                 switch game_logic_state.main_state {
                         case .main_menu: {
+                                // IMUI
                                 button1_dimensions := ui_rect2d_anchored_to_ndc(.center, {0, vh(25)}, {vh(25), vh(7.5)})
-                                if imui_menu_button(button1_dimensions, "Button", 24) { 
+                                if imui_menu_button(button1_dimensions, "Button", 64) { 
                                         log_debug("Button1") 
                                 }
                                 exit_rect := ui_rect2d_anchored_to_ndc(.center, {0, -vh(25)}, {vh(25), vh(7.5)})
-                                if imui_menu_button(exit_rect, "Exit", 50) { 
+                                if imui_menu_button(exit_rect, "Exit", 64) { 
                                         game_logic_state.game_running = false
                                 }
 
-                                // Draw main menu
+                                // LOGIC
+
+                                // DRAW SCREEN
 
                                 gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
                                 gl.Clear(gl.COLOR_BUFFER_BIT)
                         }
                         case .main_game: {
+                                // IMUI
+
                                 if game_controls.mouse.buttons[.m1].is_down {
                                         draw_selection_box = true
                                         if game_controls.mouse.buttons[.m1].pressed {
@@ -130,7 +135,9 @@ main :: proc() {
                                         game_logic_state.main_state = .main_menu
                                 }
 
-                                // Draw main game
+                                // LOGIC
+
+                                // DRAW SCREEN
 
                                 gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
                                 gl.Clear(gl.COLOR_BUFFER_BIT)
