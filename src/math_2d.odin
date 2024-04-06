@@ -106,7 +106,7 @@ ui_rect2d_anchored_to_ndc :: proc(
 
 get_px_pos_to_ndc :: proc(x, y: f32) -> Vec2 {
 	x_percentage := x / game_window.size_px.x
-	y_percentage := (game_window.size_px.y - y) / game_window.size_px.y
+	y_percentage := y / game_window.size_px.y
 	x_ndc : f32 = (x_percentage * 2) - 1.0
 	y_ndc : f32 = (y_percentage * 2) - 1.0
 	return {x_ndc, y_ndc}
@@ -125,7 +125,7 @@ get_rect_ndc_to_px :: proc(ndc: Rect2D_NDC) -> Rect2D_px {
 }
 
 rect_2d_point_collide :: proc(point_px: Vec2, rect: Rect2D_px) -> bool {
-	used_height_px := game_window.size_px.y - point_px.y
+	used_height_px := point_px.y
 	if rect.bot_left.x <= point_px.x && point_px.x <= rect.top_right.x {
 		if rect.bot_left.y <= used_height_px && used_height_px <= rect.top_right.y {
 			return true

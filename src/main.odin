@@ -84,55 +84,69 @@ main :: proc() {
         free_all(context.temp_allocator)
 
 	imui_init()
+        game_logic_state.main_state = .main_menu
+        game_logic_state.game_running = true
 
-	for !glfw.WindowShouldClose(game_window.handle) {
+	for !glfw.WindowShouldClose(game_window.handle) && game_logic_state.game_running {
                 glfw.PollEvents()
 
 		set_game_controls_state()
-                
-		if game_controls.mouse.buttons[.m1].is_down {
-			draw_selection_box = true
-			if game_controls.mouse.buttons[.m1].pressed {
-				box_start_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
-			}
-			box_end_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
-		} 
-                else { 
-                        draw_selection_box = false 
-                }
-		if game_controls.keyboard.keys[.v].pressed { 
+
+                if game_controls.keyboard.keys[.v].pressed { 
                         display_allocations_tracker(&mem_tracker)
                         debug_display_all_perma_strings()
-                }
-                if game_controls.keyboard.keys[.e].pressed {
-                        game_fonts = load_all_fonts()
-                        log_debug("Reloaded fonts.")
-                }
-		button1_dimensions := ui_rect2d_anchored_to_ndc(.top_left, {vw(2.5), vh(2.5)}, {vh(20), vh(15)})
-		if imui_menu_button(button1_dimensions) { 
-                        log_debug("Button1") 
-                        log_info(game_file_info.exe_fullpath)
+                        load_all_fonts()
                 }
 
-                gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
-	        gl.Clear(gl.COLOR_BUFFER_BIT)
+                switch game_logic_state.main_state {
+                        case .main_menu: {
+                                button1_dimensions := ui_rect2d_anchored_to_ndc(.center, {0, vh(25)}, {vh(25), vh(7.5)})
+                                if imui_menu_button(button1_dimensions, "Button", 24) { 
+                                        log_debug("Button1") 
+                                }
+                                exit_rect := ui_rect2d_anchored_to_ndc(.center, {0, -vh(25)}, {vh(25), vh(7.5)})
+                                if imui_menu_button(exit_rect, "Exit", 50) { 
+                                        game_logic_state.game_running = false
+                                }
 
-                rect1_dimensions := ui_rect2d_anchored_to_ndc(.bot_right, {vw(5), vh(5)}, {vh(20), vh(20)})
-	        draw_rect_2d(rect1_dimensions, {0.8, 0.4, 0.4}, game_textures["wall"].texture_id)
-                draw_rect_2d({{0.75, 0.75}, {-0.25, -0.25}}, {1.0, 1.0, 0.6}, game_textures["wall"].texture_id)
-	        draw_line_2d({{-0.5, 0.6}, {0.6, 0}}, {0.2, 0.2, 0.5}, 3.0)
-	        char1_dimensions := ui_rect2d_anchored_to_ndc(.top_right, {vh(12), vh(12)}, {vh(20), vh(25)})
-	        draw_character(char1_dimensions.bot_left, {0.0, 1.0 , 0.0}, &game_fonts.debug_font, 'P')
+                                // Draw main menu
 
-	        if draw_selection_box == true {
-		        draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
-	        }
+                                gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
+                                gl.Clear(gl.COLOR_BUFFER_BIT)
+                        }
+                        case .main_game: {
+                                if game_controls.mouse.buttons[.m1].is_down {
+                                        draw_selection_box = true
+                                        if game_controls.mouse.buttons[.m1].pressed {
+                                                box_start_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
+                                        }
+                                        box_end_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
+                                } 
+                                else { 
+                                        draw_selection_box = false 
+                                }
+
+                                if game_controls.keyboard.keys[.e].pressed {
+                                        game_logic_state.main_state = .main_menu
+                                }
+
+                                // Draw main game
+
+                                gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
+                                gl.Clear(gl.COLOR_BUFFER_BIT)
+
+                                if draw_selection_box == true {
+                                        draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
+                                }
+                        }
+                }
 
 	        imui_render()
                 display_debug_info()
 
                 glfw.SwapBuffers(game_window.handle)
                 game_logic_state.frames += 1
+                free_all(context.temp_allocator)
         }
 
         log_info("Game terminated.")
@@ -140,7 +154,7 @@ main :: proc() {
 
 display_debug_info :: proc() {
         start := ui_point_anchored_to_ndc(.top_left, {vh(0.5), vh(0)})
-        start.y -= get_px_height_to_ndc(game_fonts.debug_font.font_size_px)
+        start.y -= get_px_height_to_ndc(32)
         str_1 := fmt.tprintf("Frames: {}", game_logic_state.frames)
-        cursor := draw_text(start, {0.9, 0.9, 0.9}, &game_fonts.debug_font, str_1)
+        cursor := draw_text(start, {0.9, 0.9, 0.9}, &game_fonts.debug_font, str_1, 32)
 }

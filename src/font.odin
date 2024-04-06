@@ -8,6 +8,7 @@ import "core:os"
 import "core:fmt"
 import "core:mem"
 import "core:mem/virtual"
+import "core:strings"
 
 GameFonts :: struct {
         debug_font: TTF_Font
@@ -36,8 +37,9 @@ load_all_fonts :: proc() -> GameFonts {
 	defer delete(buffer)
 	mem_arena := init_arena_buffer(buffer[:])
         game_fonts : GameFonts
-	font_1_path := "G:\\projects\\game\\TheForge\\resources\\fonts\\FragmentMono-Regular.ttf"
-	game_fonts.debug_font = load_ttf_font(font_1_path, max(vh(1.0), 16.0), &mem_arena)
+	font_path_1 := strings.concatenate({get_fonts_directory(), "\\FragmentMono-Regular.ttf"}, context.temp_allocator)
+	game_fonts.debug_font = load_ttf_font(font_path_1, FONT_BITMAP_SIZE_DEFAULT, &mem_arena)
+        log_info("(Re)loaded all fonts.")
         return game_fonts
 }
 
@@ -55,7 +57,7 @@ get_font_atlas_size :: proc(font_data: ^TTF_Font, stb_font_info: ^stbtt.fontinfo
                 height := i32(font_data.font_size_px)
                 current := CodepointBitmapInfo{char, width, height, 0, 0, {}, {}}
                 font_data.codepoints[0] = current
-                current_x += width
+                current_x += width + FONT_ATLAS_PADDING_PX
         }
         for i := 1; i < 96; i += 1 {
                 char := cast(rune)(i + 32)
@@ -65,7 +67,7 @@ get_font_atlas_size :: proc(font_data: ^TTF_Font, stb_font_info: ^stbtt.fontinfo
                 height := iy1 - yoff
                 current := CodepointBitmapInfo{char, width, height, xoff, yoff, {}, {}}
                 font_data.codepoints[i] = current
-                current_x += width
+                current_x += width + FONT_ATLAS_PADDING_PX
         }
         font_data.texture_atlas_size.x = f32(current_x)
         font_data.texture_atlas_size.y = font_data.font_size_px
@@ -84,8 +86,7 @@ load_ttf_font :: proc(filepath: string, font_height_px: f32, mem_arena: ^virtual
         font_data.font_scaling = font_scaling
         get_font_atlas_size(&font_data, &stb_font_info) 
         build_font_atlas_bitmap(&font_data, &stb_font_info)
-        str := fmt.tprint("Loaded font", filepath, "with font size", font_height_px)
-        log_debug(str)
+        log_debug(fmt.tprint("Loaded font", filepath, "with font size", font_height_px))
         return font_data
 }
 
@@ -108,7 +109,7 @@ build_font_atlas_bitmap :: proc(font_data: ^TTF_Font, stb_font_info: ^stbtt.font
                 current := &font_data.codepoints[0]
                 current.glyph_uv_bot_left = {uv_botleft_x, 0.0}
                 current.glyph_uv_top_right = {uv_topright_x, uv_topright_y}
-                current_x += i32(width)
+                current_x += i32(width) + FONT_ATLAS_PADDING_PX
         }
         for i := 1; i < 96; i += 1 {
                 char := cast(rune)(i + 32)
@@ -134,7 +135,7 @@ build_font_atlas_bitmap :: proc(font_data: ^TTF_Font, stb_font_info: ^stbtt.font
                 current.glyph_uv_bot_left = {uv_botleft_x, 0.0}
                 current.glyph_uv_top_right = {uv_topright_x, uv_topright_y}
                 stbtt.FreeBitmap(bitmap, nil)
-                current_x += width
+                current_x += width + FONT_ATLAS_PADDING_PX
         }
         create_font_atlas_texture(font_data, atlas_bitmap)
 }

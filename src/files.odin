@@ -119,3 +119,13 @@ load_image_data :: proc(filename: string) -> ImageData {
 free_image_data :: proc(data: ^ImageData) {
     stbi.image_free(data.data)
 }
+
+get_shaders_directory :: proc() -> string {
+        dir := strings.concatenate({game_file_info.resources_dirpath, "\\shaders"}, context.temp_allocator);
+        return dir
+}
+
+get_fonts_directory :: proc() -> string {
+        dir := strings.concatenate({game_file_info.resources_dirpath, "\\fonts"}, context.temp_allocator);
+        return dir
+}

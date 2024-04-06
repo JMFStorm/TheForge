@@ -16,7 +16,7 @@ StringArena :: struct {
 }
 
 debug_display_all_perma_strings :: proc() {
-        log_debug(fmt.tprintf("Displaying all strings in permanent str storage (count:%d, bytes:%d):", str_perma_arena.strings_count, str_perma_arena.used))
+        log_debug(fmt.tprintf("Displaying all strings in permanent str storage (count:%d, bytes:%d)", str_perma_arena.strings_count, str_perma_arena.used))
         for i := 0; i < str_perma_arena.strings_count; i += 1 {
                 str_index := str_perma_arena.strings_indexes[i]
                 str_index_end : int
@@ -27,7 +27,7 @@ debug_display_all_perma_strings :: proc() {
                         str_index_end = str_perma_arena.strings_indexes[i + 1]
                 }
                 current := str_perma_arena.data[str_index:str_index_end]
-                log_debug(fmt.tprintf("-%d: %s", i, string(current)))
+                log_debug(fmt.tprintf("%d: %s", i, string(current)))
         }
 }
 
@@ -108,6 +108,7 @@ load_all_textures :: proc() -> map[string]TextureData {
 	game_textures := make(map[string]TextureData)
 	game_textures[texture_1.name] = texture_1
 	game_textures[texture_2.name] = texture_2
+        free_all(context.temp_allocator)
 	return game_textures
 }
 

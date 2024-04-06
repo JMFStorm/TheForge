@@ -5,11 +5,12 @@ import "core:os"
 import "core:mem"
 import "core:path/filepath"
 import "core:mem/virtual"
+import "core:strings"
 import gl "vendor:OpenGL"
 
 init_simple_rectangle_2d_shader :: proc(mem_arena: ^virtual.Arena) -> SimpleShader {
-        vs_path := "G:\\projects\\game\\TheForge\\resources\\shaders\\simple_rectangle_2d_vs.txt"
-        fs_path := "G:\\projects\\game\\TheForge\\resources\\shaders\\simple_rectangle_2d_fs.txt"
+        vs_path := strings.concatenate({get_shaders_directory(), "\\simple_rectangle_2d_vs.txt"}, context.temp_allocator)
+        fs_path := strings.concatenate({get_shaders_directory(), "\\simple_rectangle_2d_fs.txt"}, context.temp_allocator)
         shader := create_simple_shader(vs_path, fs_path, mem_arena)
 
         gl.BindVertexArray(shader.vao)
@@ -35,8 +36,8 @@ init_simple_rectangle_2d_shader :: proc(mem_arena: ^virtual.Arena) -> SimpleShad
 }
 
 init_line_2d_shader :: proc(mem_arena: ^virtual.Arena) -> SimpleShader {
-        vs_path := "G:\\projects\\game\\TheForge\\resources\\shaders\\simple_rectangle_2d_vs.txt"
-        fs_path := "G:\\projects\\game\\TheForge\\resources\\shaders\\simple_rectangle_2d_fs.txt"
+        vs_path := strings.concatenate({get_shaders_directory(), "\\simple_rectangle_2d_vs.txt"}, context.temp_allocator)
+        fs_path := strings.concatenate({get_shaders_directory(), "\\simple_rectangle_2d_fs.txt"}, context.temp_allocator)
         shader := create_simple_shader(vs_path, fs_path, mem_arena)
 
         gl.BindVertexArray(shader.vao)

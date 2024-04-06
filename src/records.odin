@@ -40,8 +40,15 @@ GameControls :: struct {
 	keyboard: KeyboardControls,
 }
 
+GameMainState :: enum {
+        main_menu,
+        main_game,
+}
+
 GameLogicState :: struct {
-        frames: int
+        game_running: bool,
+        frames: int,
+        main_state: GameMainState,
 }
 
 GameWindow :: struct {
@@ -84,4 +91,6 @@ TextureData :: struct {
 ImUiBuffers :: struct {
 	ui_rects: SimpleShader,
 	buffered_rects_2d: int,
+        ui_text: SimpleShader,
+	buffered_text: int,
 }
