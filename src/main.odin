@@ -32,7 +32,7 @@ init_game_window :: proc() -> (window: GameWindow, error: bool) {
 	}
 	aspect := f32(mode.width) / f32(mode.height)
         glfw.SetWindowMonitor(window_handle, monitor, 0, 0, game_monitor.width, game_monitor.height, glfw.DONT_CARE)
-	return GameWindow{window_handle, {f32(mode.width), f32(mode.height)}, aspect}, false
+	return GameWindow{window_handle, {f32(mode.width), f32(mode.height)}, aspect, true}, false
 }
 
 size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
@@ -101,6 +101,17 @@ main :: proc() {
                         display_allocations_tracker(&mem_tracker)
                         debug_display_all_perma_strings()
                         load_all_fonts()
+                }
+
+                if game_controls.keyboard.keys[.f].pressed {
+                        if game_window.is_fullscreen {
+                                glfw.SetWindowMonitor(game_window.handle, nil, 0, 0, game_monitor.width, game_monitor.height, glfw.DONT_CARE)
+                                game_window.is_fullscreen = false
+                        }
+                        else {
+                                glfw.SetWindowMonitor(game_window.handle, glfw.GetPrimaryMonitor(), 0, 0, game_monitor.width, game_monitor.height, glfw.DONT_CARE)
+                                game_window.is_fullscreen = true
+                        }
                 }
 
                 menu_text_size = vh(7.5)

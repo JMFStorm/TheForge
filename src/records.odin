@@ -29,6 +29,7 @@ MouseControls :: struct {
 KeyboardKeys :: enum {
 	e,
 	v,
+	f,
         esc,
 }
 
@@ -68,6 +69,7 @@ GameWindow :: struct {
 	handle: glfw.WindowHandle,
 	size_px: Vec2,
 	aspect_ratio_xy: f32,
+        is_fullscreen: bool,
 }
 
 GameMonitor :: struct {
