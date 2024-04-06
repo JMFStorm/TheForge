@@ -29,6 +29,7 @@ MouseControls :: struct {
 KeyboardKeys :: enum {
 	e,
 	v,
+        esc,
 }
 
 KeyboardControls :: struct {
@@ -45,10 +46,22 @@ GameMainState :: enum {
         main_game,
 }
 
+MainGameState :: enum {
+        main_game,
+        pause_menu,
+}
+
+MainMenuState :: enum {
+        main_menu,
+        settings,
+}
+
 GameLogicState :: struct {
         game_running: bool,
         frames: int,
         main_state: GameMainState,
+        main_game_state: MainGameState,
+        main_menu_state: MainMenuState,
 }
 
 GameWindow :: struct {

@@ -98,70 +98,101 @@ main :: proc() {
                         load_all_fonts()
                 }
 
+                menu_text_size := vh(7.5)
+
                 switch game_logic_state.main_state {
                         case .main_menu: {
-                                // IMUI
-                                button1_dimensions := ui_rect2d_anchored_to_ndc(.center, {0, vh(25)}, {vh(25), vh(7.5)})
-                                if imui_menu_button(button1_dimensions, "Button", 64) { 
-                                        log_debug("Button1") 
+                                switch game_logic_state.main_menu_state {
+                                        case .main_menu: {
+                                                // IMUI
+                                                imui_menu_title("Main menu", menu_text_size)
+                                                play_dimensions := ui_rect2d_anchored_to_ndc(.center, {0, vh(5)}, {vh(25), menu_text_size})
+                                                if imui_menu_button(play_dimensions, "Play", vh(5)) { 
+                                                        log_debug("Play game") 
+                                                        game_logic_state.main_state = .main_game
+                                                }
+                                                setings_dimensions := ui_rect2d_anchored_to_ndc(.center, {0, -vh(10)}, {vh(25), menu_text_size})
+                                                if imui_menu_button(setings_dimensions, "Settings", vh(5)) { 
+                                                        log_debug("Settings") 
+                                                        game_logic_state.main_menu_state = .settings
+                                                }
+                                                exit_rect := ui_rect2d_anchored_to_ndc(.center, {0, -vh(25)}, {vh(25), menu_text_size})
+                                                if imui_menu_button(exit_rect, "Exit", vh(5)) { 
+                                                        game_logic_state.game_running = false
+                                                }
+
+                                                // LOGIC
+                                        }
+                                        case .settings: {
+                                                // IMUI
+                                                imui_menu_title("Settings", menu_text_size)
+                                                bo_back_rect := ui_rect2d_anchored_to_ndc(.center, {0, -vh(25)}, {vh(25), menu_text_size})
+                                                if imui_menu_button(bo_back_rect, "Go back", vh(5)) { 
+                                                        log_debug("Go back") 
+                                                        game_logic_state.main_menu_state = .main_menu
+                                                }
+
+                                                // LOGIC
+                                        }
                                 }
-                                exit_rect := ui_rect2d_anchored_to_ndc(.center, {0, -vh(25)}, {vh(25), vh(7.5)})
-                                if imui_menu_button(exit_rect, "Exit", 64) { 
-                                        game_logic_state.game_running = false
-                                }
-
-                                // LOGIC
-
-                                // DRAW SCREEN
-
-                                gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
-                                gl.Clear(gl.COLOR_BUFFER_BIT)
                         }
                         case .main_game: {
-                                // IMUI
+                                switch game_logic_state.main_game_state {
+                                        case .main_game: {
+                                                // IMUI
+                                                if game_controls.mouse.buttons[.m1].is_down {
+                                                        draw_selection_box = true
+                                                        if game_controls.mouse.buttons[.m1].pressed {
+                                                                box_start_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
+                                                        }
+                                                        box_end_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
+                                                } 
+                                                else { 
+                                                        draw_selection_box = false 
+                                                }
+                                                if game_controls.keyboard.keys[.esc].pressed {
+                                                        log_debug("to pause") 
+                                                        game_logic_state.main_game_state = .pause_menu
+                                                }
 
-                                if game_controls.mouse.buttons[.m1].is_down {
-                                        draw_selection_box = true
-                                        if game_controls.mouse.buttons[.m1].pressed {
-                                                box_start_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
+                                                // LOGIC
                                         }
-                                        box_end_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
-                                } 
-                                else { 
-                                        draw_selection_box = false 
-                                }
+                                        case .pause_menu: {
+                                                // IMUI
+                                                imui_menu_title("Pause menu", menu_text_size)
+                                                main_menu_rect := ui_rect2d_anchored_to_ndc(.center, {0, -vh(25)}, {vh(25), menu_text_size})
+                                                if imui_menu_button(main_menu_rect, "To main menu", vh(5)) {
+                                                        game_logic_state.main_state = .main_menu
+                                                }
 
-                                if game_controls.keyboard.keys[.e].pressed {
-                                        game_logic_state.main_state = .main_menu
-                                }
-
-                                // LOGIC
-
-                                // DRAW SCREEN
-
-                                gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
-                                gl.Clear(gl.COLOR_BUFFER_BIT)
-
-                                if draw_selection_box == true {
-                                        draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
+                                                // LOGIC
+                                                if game_controls.keyboard.keys[.esc].pressed {
+                                                        log_debug("to play game") 
+                                                        game_logic_state.main_game_state = .main_game
+                                                }
+                                        }
                                 }
                         }
                 }
-
+                // DRAW SCREEN
+                gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
+                gl.Clear(gl.COLOR_BUFFER_BIT)
+                if draw_selection_box == true {
+                        draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
+                }
 	        imui_render()
                 display_debug_info()
-
                 glfw.SwapBuffers(game_window.handle)
                 game_logic_state.frames += 1
                 free_all(context.temp_allocator)
         }
-
         log_info("Game terminated.")
 }
 
 display_debug_info :: proc() {
+        font_size := vh(2)
         start := ui_point_anchored_to_ndc(.top_left, {vh(0.5), vh(0)})
-        start.y -= get_px_height_to_ndc(32)
+        start.y -= get_px_height_to_ndc(font_size)
         str_1 := fmt.tprintf("Frames: {}", game_logic_state.frames)
-        cursor := draw_text(start, {0.9, 0.9, 0.9}, &game_fonts.debug_font, str_1, 32)
+        cursor := draw_text(start, {0.9, 0.9, 0.9}, &game_fonts.debug_font, str_1, font_size)
 }

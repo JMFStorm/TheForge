@@ -66,7 +66,7 @@ buffer_imui_rect_2d :: proc(rect_coords: Rect2D_NDC, color: Color3) {
         imui_buffers.buffered_rects_2d += 1
 }
 
-buffer_imui_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: string, size_px: f32, end_in_newline := false) -> (cursor_next: Vec2) {
+imui_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: string, size_px: f32, end_in_newline := false) -> (cursor_next: Vec2) {
         gl.BindBuffer(gl.ARRAY_BUFFER, imui_buffers.ui_text.vbo)
         current_cursor := cursor_ndc
         font_scale := size_px / font_data.font_size_px
@@ -100,9 +100,16 @@ imui_menu_button :: proc(dimensions: Rect2D_NDC, text: string, font_size: f32) -
                 text_x_offset :=  get_px_width_to_ndc(f32(text_width / 2))
                 text_y_offset :=  get_px_height_to_ndc(font_size / 4)
                 button_text_start := Vec2{button_center.x - text_x_offset, button_center.y - text_y_offset}
-                buffer_imui_text(button_text_start, {0, 0, 0}, &game_fonts.debug_font, text, font_size)
+                imui_text(button_text_start, {0, 0, 0}, &game_fonts.debug_font, text, font_size)
         }
         return on_click
+}
+
+imui_menu_title :: proc(menu_name: string, font_size: f32) {
+        text_width := get_font_text_width_px(&game_fonts.debug_font, menu_name, font_size)
+        text_x_offset := get_px_width_to_ndc(f32(text_width / 2))
+        text_pos := Vec2{0 - text_x_offset, get_px_height_to_ndc(vh(30))}
+        imui_text(text_pos, {0.9, 0.9, 0.9}, &game_fonts.debug_font, menu_name, font_size)
 }
 
 draw_buffered_imui_rects_2d :: proc() {
