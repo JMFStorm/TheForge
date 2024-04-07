@@ -35,35 +35,32 @@ set_game_file_info :: proc() {
 
 set_executable_fullpath :: proc(temp_allocator := context.temp_allocator) {
         game_file_info.exe_fullpath = str_perma_copy(get_executable_fullpath(temp_allocator))
-        log_info(fmt.tprint("Executable fullpath:", game_file_info.exe_fullpath))
 }
 
 set_executable_dirpath :: proc(temp_allocator := context.temp_allocator) {
         if len(game_file_info.exe_fullpath) <= 0 {
-                log_and_panic("Could not get executable dirpath, fullpath missing.")
+                panic("Could not get executable dirpath, fullpath missing.")
         }
+
         path_str := filepath.dir(game_file_info.exe_fullpath, temp_allocator)
         game_file_info.exe_dirpath = str_perma_copy(path_str)
-        log_info(fmt.tprint("Executable dirpath:", game_file_info.exe_dirpath))
 }
 
 append_dirpath :: proc(basepath: string, appended: string, temp_allocator := context.temp_allocator) -> string {
-        log_debug(basepath)
         concated, str_err := strings.concatenate({basepath, appended}, temp_allocator)
         if str_err != nil {
-                log_and_panic("Could not concatenate dirpaths.")
+                panic("Could not concatenate dirpaths.")
         }
         return concated
 }
 
 set_resources_dirpath :: proc(temp_allocator := context.temp_allocator) {
         if len(game_file_info.exe_dirpath) <= 0 {
-                log_and_panic("Could not get resources dirpath, executable dirpath missing.")
+                panic("Could not get resources dirpath, executable dirpath missing.")
         }
-        parent := get_parent_dir(game_file_info.exe_dirpath)
-        resources_dirpath := append_dirpath(parent, "\\resources", temp_allocator)
+        exe_parent := get_parent_dir(game_file_info.exe_dirpath)
+        resources_dirpath := append_dirpath(exe_parent, "\\resources", temp_allocator)
         game_file_info.resources_dirpath = str_perma_copy(resources_dirpath)
-        log_info(fmt.tprint("Resources dirpath:", game_file_info.resources_dirpath))
 }
 
 read_file_to_cstring :: proc(path: string, mem_arena: ^virtual.Arena) -> (cstring, int) {
@@ -130,5 +127,6 @@ get_shaders_directory :: proc() -> string {
 
 get_fonts_directory :: proc() -> string {
         dir := strings.concatenate({game_file_info.resources_dirpath, "\\fonts"}, context.temp_allocator);
+        fmt.println("get_fonts_directory", dir)
         return dir
 }

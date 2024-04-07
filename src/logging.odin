@@ -4,6 +4,7 @@ import "core:log"
 import "core:runtime"
 import "core:os"
 import "core:fmt"
+import "core:strings"
 
 create_debug_build_logger :: proc(data: ^log.File_Console_Logger_Data) -> log.Logger {
 	data.file_handle = os.INVALID_HANDLE
@@ -18,7 +19,8 @@ create_debug_build_logger :: proc(data: ^log.File_Console_Logger_Data) -> log.Lo
 }
 
 create_release_build_logger :: proc(data: ^log.File_Console_Logger_Data) -> log.Logger {
-        handle, open_error := os.open("./log.txt", os.O_WRONLY|os.O_TRUNC|os.O_CREATE)
+        logger_path := strings.concatenate({game_file_info.exe_dirpath, "\\log.txt"}, context.temp_allocator)
+        handle, open_error := os.open(logger_path, os.O_WRONLY|os.O_TRUNC|os.O_CREATE)
         if open_error != 0 {
                 fmt.panicf("ERROR: Could not init file logger")
         }
@@ -32,6 +34,14 @@ create_release_build_logger :: proc(data: ^log.File_Console_Logger_Data) -> log.
                 .Line,
         }
 	return log.Logger{log.file_console_logger_proc, data, log.Level.Info, options}
+}
+
+init_loggers :: proc() -> log.Logger {
+        console_logger_data = new(log.File_Console_Logger_Data)
+        file_logger_data = new(log.File_Console_Logger_Data)
+        console_logger := create_debug_build_logger(console_logger_data)
+        file_logger := create_release_build_logger(file_logger_data)
+        return log.create_multi_logger(console_logger, file_logger)
 }
 
 log_debug :: proc(text: string, location := #caller_location) {

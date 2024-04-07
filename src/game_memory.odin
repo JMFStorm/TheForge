@@ -81,6 +81,8 @@ deallocate_all_memory :: proc() {
 	delete(game_controls.mouse.buttons)
 	delete(game_controls.keyboard.keys)
 	delete(game_textures)
+        free(console_logger_data)
+        free(file_logger_data)
         free_all(str_perma_allocator)
 }
 

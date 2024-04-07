@@ -1,1 +1,1 @@
-odin build src/. -debug -out:debug/jmfg3d_debug.exe -subsystem:console
+odin build src/. -debug -out:bin/jmfg3d_debug.exe

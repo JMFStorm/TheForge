@@ -51,22 +51,21 @@ set_game_cursor :: proc() -> glfw.CursorHandle {
 
 main :: proc() {
         init_global_temporary_allocator(mem.Megabyte * 15)
-        logger_data := new(log.File_Console_Logger_Data)
-        defer free(logger_data)
+        str_perma_allocator = init_str_perma_allocator(mem.Kilobyte * 512)
+
 	when ODIN_DEBUG {
 		mem.tracking_allocator_init(&mem_tracker, context.allocator)
 		context.allocator = mem.tracking_allocator(&mem_tracker)
 		defer display_allocations_tracker(&mem_tracker)
 		defer deallocate_all_memory()
-                context.logger = create_debug_build_logger(logger_data)
                 log_info("Game started. Debug build.")
 	}
         else {
-                context.logger = create_release_build_logger(logger_data)
                 log_info("Game started. Release build.")
         }
-        str_perma_allocator = init_str_perma_allocator(mem.Kilobyte * 512)
+
         set_game_file_info()
+        context.logger = init_loggers()
         free_all(context.temp_allocator)
         
 	if success := glfw.Init(); success == false {
@@ -135,6 +134,7 @@ main :: proc() {
                 // DRAW SCREEN
                 gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
                 gl.Clear(gl.COLOR_BUFFER_BIT)
+                draw_rect_2d({{0,0}, {0.5, 0.5}}, {1.0, 1.0, 0}, game_textures["awesomeface"].texture_id)
                 if draw_selection_box == true {
                         draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
                 }

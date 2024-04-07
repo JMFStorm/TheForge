@@ -4,3 +4,5 @@
 /dist
 *.rdbg
 log.txt
+.exe
+.pdb
