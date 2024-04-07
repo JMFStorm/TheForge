@@ -58,15 +58,18 @@ main :: proc() {
 		context.allocator = mem.tracking_allocator(&mem_tracker)
 		defer display_allocations_tracker(&mem_tracker)
 		defer deallocate_all_memory()
+	}
+
+        set_game_file_info()
+        context.logger = init_loggers()
+        free_all(context.temp_allocator)
+
+        when ODIN_DEBUG {
                 log_info("Game started. Debug build.")
 	}
         else {
                 log_info("Game started. Release build.")
         }
-
-        set_game_file_info()
-        context.logger = init_loggers()
-        free_all(context.temp_allocator)
         
 	if success := glfw.Init(); success == false {
                 log_and_panic("glfw.Init() failed")
@@ -135,6 +138,7 @@ main :: proc() {
                 gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
                 gl.Clear(gl.COLOR_BUFFER_BIT)
                 draw_rect_2d({{0,0}, {0.5, 0.5}}, {1.0, 1.0, 0}, game_textures["awesomeface"].texture_id)
+                draw_character({-0.6,0}, {0.1,0.1,0.1}, &game_fonts.debug_font, 'X')
                 if draw_selection_box == true {
                         draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
                 }
