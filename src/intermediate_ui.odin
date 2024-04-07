@@ -71,7 +71,8 @@ imui_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: s
         current_cursor := cursor_ndc
         font_scale := size_px / font_data.font_size_px
         for char, i in text {
-                font_vertices := build_char_vertex_data(char, &current_cursor, color, font_data, font_scale)
+                font_vertices : [48]f32
+                build_char_vertex_data(char, &current_cursor, color, font_data, &font_vertices, font_scale)
                 bytes := len(font_vertices) * size_of(f32)
                 offset := imui_buffers.buffered_text * bytes
                 gl.BufferSubData(gl.ARRAY_BUFFER, offset, bytes, raw_data(font_vertices[:]))

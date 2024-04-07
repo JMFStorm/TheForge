@@ -45,6 +45,7 @@ draw_character :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, ch
         width_ndc := get_px_width_to_ndc(f32(bitmap_info.width))
         height_ndc := get_px_height_to_ndc(f32(bitmap_info.height))
         ndc_top_right := cursor_ndc + {width_ndc, height_ndc}
+        cursor := cursor_ndc
         font_vertices := []f32 {
     	        // Coords 	                        // Color                    // UV
                 cursor_ndc.x,    ndc_top_right.y, 1.0,  color.r, color.g, color.b,  bitmap_info.glyph_uv_bot_left.x,  bitmap_info.glyph_uv_top_right.y, // topleft
@@ -67,7 +68,7 @@ draw_character :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, ch
         gl.BindVertexArray(0)
 }
 
-build_char_vertex_data :: proc(char: rune, cursor_ndc: ^Vec2, color: Color3, font_data: ^TTF_Font, font_scaling: f32) -> []f32 {
+build_char_vertex_data :: proc(char: rune, cursor_ndc: ^Vec2, color: Color3, font_data: ^TTF_Font, font_vertices: ^[48]f32, font_scaling: f32) {
         bitmap_info := get_char_codepoint_bitmap_data(font_data, char)
         width_ndc := get_px_width_to_ndc(f32(bitmap_info.width) * font_scaling)
         height_ndc := get_px_height_to_ndc(f32(bitmap_info.height) * font_scaling)
@@ -77,7 +78,7 @@ build_char_vertex_data :: proc(char: rune, cursor_ndc: ^Vec2, color: Color3, fon
         x1 : f32 = x0 + width_ndc
         y0 : f32 = cursor_ndc.y - yoff_ndc
         y1 : f32 = y0 + height_ndc
-        font_vertices := []f32 {
+        font_vertices^ = {
                 // Coords       // Color                        // UV
                 x0, y1, 1.0,    color.r, color.g, color.b,      bitmap_info.glyph_uv_bot_left.x,  bitmap_info.glyph_uv_top_right.y, // topleft
                 x1, y1, 1.0,    color.r, color.g, color.b,      bitmap_info.glyph_uv_top_right.x, bitmap_info.glyph_uv_top_right.y, // topright
@@ -88,7 +89,6 @@ build_char_vertex_data :: proc(char: rune, cursor_ndc: ^Vec2, color: Color3, fon
                 x1, y1, 1.0,    color.r, color.g, color.b,      bitmap_info.glyph_uv_top_right.x, bitmap_info.glyph_uv_top_right.y, // topright
         }
         cursor_ndc.x += width_ndc + xoff_ndc
-        return font_vertices
 }
 
 draw_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: string, font_size_px: f32, end_in_newline:= false) -> (cursor_next: Vec2) {
@@ -96,7 +96,8 @@ draw_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: s
         current_cursor := cursor_ndc
         font_scaling := font_size_px / font_data.font_size_px
         for char, i in text {
-                font_vertices := build_char_vertex_data(char, &current_cursor, color, font_data, font_scaling) 
+                font_vertices : [6 * 8]f32
+                build_char_vertex_data(char, &current_cursor, color, font_data, &font_vertices, font_scaling) 
                 bytes := len(font_vertices) * size_of(f32)
                 offset := i * bytes
                 gl.BufferSubData(gl.ARRAY_BUFFER, offset, bytes, raw_data(font_vertices[:]))
