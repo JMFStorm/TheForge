@@ -28,13 +28,25 @@ vw :: proc(vw: f32) -> f32 {
 	return (vw / 100) * game_window.size_px.x
 }
 
-min :: proc(a: f32, b: f32) -> f32 {
+min_f32 :: proc(a: f32, b: f32) -> f32 {
         return a if a < b else b
 }
 
-max :: proc(a: f32, b: f32) -> f32 {
+min_int :: proc(a: int, b: int) -> int {
+        return a if a < b else b
+}
+
+min :: proc{min_f32, min_int}
+
+max_f32 :: proc(a: f32, b: f32) -> f32 {
         return b if a < b else a
 }
+
+max_int :: proc(a: int, b: int) -> int {
+        return b if a < b else a
+}
+
+max :: proc{max_f32, max_int}
 
 ui_point_anchored_to_ndc :: proc(anchor: UiAnchorPoint, corner_dist_from_anchor_px: Vec2) -> Vec2 {
 	ndc_result : Vec2

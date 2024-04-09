@@ -39,7 +39,7 @@ load_all_fonts :: proc() -> GameFonts {
         game_fonts : GameFonts
 	font_path_1 := strings.concatenate({get_fonts_directory(), "\\FragmentMono-Regular.ttf"}, context.temp_allocator)
 	game_fonts.debug_font = load_ttf_font(font_path_1, FONT_BITMAP_SIZE_DEFAULT, &mem_arena)
-        log_info("(Re)loaded all fonts.")
+        log_info("Reloaded all fonts.")
         return game_fonts
 }
 

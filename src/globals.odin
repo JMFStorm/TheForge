@@ -5,7 +5,9 @@ import "core:log"
 import glfw "vendor:glfw"
 
 str_perma_allocator : mem.Allocator
-str_perma_arena : StringArena
+str_perma_arena : StringBuffer
+
+console_str_buffer : StringBuffer
 
 mem_tracker : mem.Tracking_Allocator
 game_window : GameWindow
@@ -24,3 +26,4 @@ main_cursor : glfw.CursorHandle
 
 console_logger_data : ^log.File_Console_Logger_Data
 file_logger_data : ^log.File_Console_Logger_Data
+

@@ -61,7 +61,7 @@ main :: proc() {
 	}
 
         set_game_file_info()
-        context.logger = init_loggers()
+        init_loggers()
         free_all(context.temp_allocator)
 
         when ODIN_DEBUG {
@@ -107,9 +107,7 @@ main :: proc() {
 		set_game_frame_controls_state()
 
                 if game_controls.keyboard.keys[.v].pressed { 
-                        display_allocations_tracker(&mem_tracker)
-                        debug_display_all_perma_strings()
-                        load_all_fonts()
+                        debug_print_console_logs()
                 }
 
                 if game_controls.keyboard.keys[.f].pressed {

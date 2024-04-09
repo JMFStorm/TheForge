@@ -27,39 +27,38 @@ get_parent_dir :: proc(path: string) -> (res: string) {
 }
 
 set_game_file_info :: proc() {
-        set_executable_fullpath(context.temp_allocator)
-        set_executable_dirpath(context.temp_allocator)
-        set_resources_dirpath(context.temp_allocator)
+        set_executable_fullpath()
+        set_executable_dirpath()
+        set_resources_dirpath()
         free_all(context.temp_allocator)
 }
 
-set_executable_fullpath :: proc(temp_allocator := context.temp_allocator) {
-        game_file_info.exe_fullpath = str_perma_copy(get_executable_fullpath(temp_allocator))
+set_executable_fullpath :: proc() {
+        game_file_info.exe_fullpath = str_perma_copy(get_executable_fullpath())
 }
 
-set_executable_dirpath :: proc(temp_allocator := context.temp_allocator) {
+set_executable_dirpath :: proc() {
         if len(game_file_info.exe_fullpath) <= 0 {
                 panic("Could not get executable dirpath, fullpath missing.")
         }
-
-        path_str := filepath.dir(game_file_info.exe_fullpath, temp_allocator)
+        path_str := filepath.dir(game_file_info.exe_fullpath)
         game_file_info.exe_dirpath = str_perma_copy(path_str)
 }
 
-append_dirpath :: proc(basepath: string, appended: string, temp_allocator := context.temp_allocator) -> string {
-        concated, str_err := strings.concatenate({basepath, appended}, temp_allocator)
+append_dirpath :: proc(basepath: string, appended: string) -> string {
+        concated, str_err := strings.concatenate({basepath, appended}, context.temp_allocator)
         if str_err != nil {
                 panic("Could not concatenate dirpaths.")
         }
         return concated
 }
 
-set_resources_dirpath :: proc(temp_allocator := context.temp_allocator) {
+set_resources_dirpath :: proc() {
         if len(game_file_info.exe_dirpath) <= 0 {
                 panic("Could not get resources dirpath, executable dirpath missing.")
         }
         exe_parent := get_parent_dir(game_file_info.exe_dirpath)
-        resources_dirpath := append_dirpath(exe_parent, "\\resources", temp_allocator)
+        resources_dirpath := append_dirpath(exe_parent, "\\resources")
         game_file_info.resources_dirpath = str_perma_copy(resources_dirpath)
 }
 
@@ -127,6 +126,5 @@ get_shaders_directory :: proc() -> string {
 
 get_fonts_directory :: proc() -> string {
         dir := strings.concatenate({game_file_info.resources_dirpath, "\\fonts"}, context.temp_allocator);
-        fmt.println("get_fonts_directory", dir)
         return dir
 }

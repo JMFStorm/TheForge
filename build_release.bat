@@ -1,1 +1,1 @@
-odin build src/. -out:bin/jmfg3d.exe -o:aggressive
+odin build src/. -out:bin/jmfg3d.exe
