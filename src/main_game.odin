@@ -4,9 +4,9 @@ main_game_logic :: proc() {
         switch game_logic_state.main_game_state {
                 case .main_game: {
                         // IMUI
-                        if game_controls.mouse.buttons[.m1].is_down {
+                        if game_controls.mouse.buttons[.m1].state.is_down {
                                 draw_selection_box = true
-                                if game_controls.mouse.buttons[.m1].pressed {
+                                if game_controls.mouse.buttons[.m1].state.pressed {
                                         box_start_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
                                 }
                                 box_end_ndc = get_px_pos_to_ndc(game_controls.mouse.window_pos.x, game_controls.mouse.window_pos.y)
@@ -14,7 +14,7 @@ main_game_logic :: proc() {
                         else { 
                                 draw_selection_box = false 
                         }
-                        if game_controls.keyboard.keys[.esc].pressed {
+                        if game_controls.keyboard.keys[.esc].state.pressed {
                                 log_debug("to pause") 
                                 game_logic_state.main_game_state = .pause_menu
                         }
@@ -30,7 +30,7 @@ main_game_logic :: proc() {
                         }
 
                         // LOGIC
-                        if game_controls.keyboard.keys[.esc].pressed {
+                        if game_controls.keyboard.keys[.esc].state.pressed {
                                 log_debug("to play game") 
                                 game_logic_state.main_game_state = .main_game
                         }

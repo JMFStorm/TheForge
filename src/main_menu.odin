@@ -21,7 +21,7 @@ main_menu_logic :: proc() {
                         }
 
                         // LOGIC
-                        if game_controls.keyboard.keys[.esc].pressed {
+                        if game_controls.keyboard.keys[.esc].state.pressed {
                                 game_logic_state.game_running = false
                         }
                 }

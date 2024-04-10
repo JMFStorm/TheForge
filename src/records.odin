@@ -10,38 +10,6 @@ UiAnchorPoint :: enum {
 	bot_right,
 }
 
-KeyState :: struct {
-	key: i32,
-	pressed: bool,
-	is_down: bool,
-}
-
-MouseButtons :: enum {
-	m1,
-	m2,
-}
-
-MouseControls :: struct {
-	window_pos: Vec2,
-	buttons: map[MouseButtons]KeyState,
-}
-
-KeyboardKeys :: enum {
-	e,
-	v,
-	f,
-        esc,
-}
-
-KeyboardControls :: struct {
-	keys: map[KeyboardKeys]KeyState,
-}
-
-GameControls :: struct {
-	mouse: MouseControls,
-	keyboard: KeyboardControls,
-}
-
 GameMainState :: enum {
         main_menu,
         main_game,

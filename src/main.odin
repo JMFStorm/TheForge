@@ -35,6 +35,7 @@ init_game_window :: proc() -> (window: GameWindow, error: bool) {
 }
 
 size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
+        context = runtime.default_context()
         gl.Viewport(0, 0, width, height)
         game_window.size_px.x = f32(width)
         game_window.size_px.y = f32(height)
@@ -106,12 +107,13 @@ main :: proc() {
                 glfw.PollEvents()
 		set_game_frame_controls_state()
 
-                if game_controls.keyboard.keys[.v].pressed { 
+                if game_controls.keyboard.keys[.q].state.pressed { 
+                        log_debug("Q pressed")
                         debug_print_console_logs()
                 }
 
-                if game_controls.keyboard.keys[.f].pressed {
-                        log_debug("F pressed, to pay respect")
+                if game_controls.keyboard.keys[.w].state.pressed {
+                        log_debug("W pressed")
                         if glfw.GetWindowMonitor(game_window.handle) != nil {
                                 glfw.SetWindowMonitor(game_window.handle, nil, 100, 100, 1200, 900, glfw.DONT_CARE)
                                 game_window.is_fullscreen = false

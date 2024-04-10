@@ -90,7 +90,7 @@ imui_menu_button :: proc(dimensions: Rect2D_NDC, text: string, font_size: f32) -
         dimensions_px := get_rect_ndc_to_px(dimensions)
         rect_2d_point_collide := rect_2d_point_collide(game_controls.mouse.window_pos, dimensions_px)
         on_hover := rect_2d_point_collide
-        on_click := on_hover && game_controls.mouse.buttons[.m1].pressed
+        on_click := on_hover && game_controls.mouse.buttons[.m1].state.pressed
         buffer_imui_rect_2d(dimensions, {0.8, 0.8, 0.8})
         if on_hover {
                 buffer_imui_rect_2d(dimensions, {1.0, 0.2, 0.2})
