@@ -128,7 +128,8 @@ main :: proc() {
                         }
                 }
 
-                menu_text_size = vh(7.5)
+                menu_title_text_size = vh(7.5)
+                menu_text_size = vh(5)
 
                 switch game_logic_state.main_state {
                         case .main_menu: {

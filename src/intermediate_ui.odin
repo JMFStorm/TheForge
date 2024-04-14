@@ -106,6 +106,28 @@ imui_menu_button :: proc(dimensions: Rect2D_NDC, text: string, font_size: f32) -
         return on_click
 }
 
+imui_setting_checkbox :: proc(pos_ndc: Vec2, text: string, font_size: f32) -> bool {
+        text_width := get_font_text_width_px(&game_fonts.debug_font, text, font_size)
+        checkbox_width := font_size
+        checkbox_padding : f32 = font_size / 4
+        rect_bot_left := Vec2{pos_ndc.x, pos_ndc.y - get_px_height_to_ndc(checkbox_padding)}
+        rect_top_right := rect_bot_left + Vec2{get_px_width_to_ndc(checkbox_width), get_px_height_to_ndc(checkbox_width)}
+        checkbox_dimesions := Rect2D_NDC{
+                rect_bot_left, 
+                rect_top_right
+        }
+        buffer_imui_rect_2d(checkbox_dimesions, {0.9, 0.9, 0.9})
+
+        cursor := pos_ndc
+        cursor.x += get_px_width_to_ndc(checkbox_padding + checkbox_width)
+
+        if 0 < len(text) {
+                // cursor.x -= (get_px_width_to_ndc(f32(text_width)) / 2)
+                cursor = imui_text(cursor, {0.9, 0.9, 0.9}, &game_fonts.debug_font, text, font_size)
+        }
+        return false
+} 
+
 imui_menu_title :: proc(menu_name: string, font_size: f32) {
         text_width := get_font_text_width_px(&game_fonts.debug_font, menu_name, font_size)
         text_x_offset := get_px_width_to_ndc(f32(text_width / 2))

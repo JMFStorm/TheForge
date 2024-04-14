@@ -16,6 +16,7 @@ game_file_info : GameFileInfo
 
 game_logic_state : GameLogicState
 menu_text_size : f32
+menu_title_text_size : f32
 game_controls: GameControls
 game_shaders : GameShaders
 game_textures : map[string]TextureData

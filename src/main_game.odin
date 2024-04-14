@@ -23,7 +23,7 @@ main_game_logic :: proc() {
                 }
                 case .pause_menu: {
                         // IMUI
-                        imui_menu_title("Pause menu", menu_text_size)
+                        imui_menu_title("Pause menu", menu_title_text_size)
                         main_menu_rect := ui_rect2d_anchored_to_ndc(.center, {0, -vh(25)}, {vh(30), menu_text_size})
                         if imui_menu_button(main_menu_rect, "To main menu", vh(5)) {
                                 game_logic_state.main_state = .main_menu
