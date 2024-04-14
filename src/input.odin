@@ -32,6 +32,7 @@ KeyboardControls :: struct {
 @(private)
 game_keys := [?]KeyCode{
         {glfw.KEY_ESCAPE, .esc},
+        {glfw.KEY_F1, .f1},
         {glfw.KEY_Q, .q}, {glfw.KEY_W, .w}, {glfw.KEY_E, .e}, {glfw.KEY_R, .r}, {glfw.KEY_T, .t}, {glfw.KEY_Y, .y}, {glfw.KEY_I, .i}, {glfw.KEY_O, .o}, {glfw.KEY_P, .p}
 }
 
@@ -72,6 +73,7 @@ set_game_frame_controls_state :: proc() {
 		}
 		else {
 			button.state.is_down = false
+                        button.state.pressed = false
 		}
 	}
 	for _, &key in game_controls.keyboard.keys {
@@ -82,6 +84,7 @@ set_game_frame_controls_state :: proc() {
 		}
 		else {
 			key.state.is_down = false
+                        key.state.pressed = false
 		}
 	}
 }

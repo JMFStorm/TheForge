@@ -112,6 +112,10 @@ main :: proc() {
                         debug_print_console_logs()
                 }
 
+                if game_controls.keyboard.keys[.f1].state.pressed {
+                        game_logic_state.display_console = true if game_logic_state.display_console == false else false
+                }
+
                 if game_controls.keyboard.keys[.w].state.pressed {
                         log_debug("W pressed")
                         if glfw.GetWindowMonitor(game_window.handle) != nil {
@@ -143,12 +147,27 @@ main :: proc() {
                         draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
                 }
 	        imui_render()
+                if game_logic_state.display_console == true {
+                        display_console()
+                }
                 display_debug_info()
                 glfw.SwapBuffers(game_window.handle)
                 game_logic_state.frames += 1
                 free_all(context.temp_allocator)
         }
         log_info("Game terminated.")
+}
+
+display_console :: proc() {
+        logs_count, start_index := get_logs_display_indexes()
+        font_size := vh(1.75)
+        cursor := ui_point_anchored_to_ndc(.top_left, {vh(0.5), vh(0)})
+        cursor.y -= get_px_height_to_ndc(font_size)
+        for i in 0 ..< logs_count {
+                index := (start_index + i) % STRING_CONSOLE_BUFFER_LENGTH
+                str := console_str_buffer.strings[index]
+                cursor = draw_text(cursor, {0.9, 0.9, 0.9}, &game_fonts.debug_font, str, font_size, true)
+        }
 }
 
 display_debug_info :: proc() {

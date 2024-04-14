@@ -40,13 +40,18 @@ console_log :: proc(text: string) {
         console_str_buffer.strings_count += 1
 }
 
+get_logs_display_indexes :: proc() -> (logs_count, start_index: int) {
+        count := min(console_str_buffer.strings_count, STRING_CONSOLE_BUFFER_LENGTH)
+        index := (console_str_buffer.strings_count - count) % STRING_CONSOLE_BUFFER_LENGTH
+        return count, index
+}
+
 debug_print_console_logs :: proc() {
         fmt.println("")
         fmt.println("---------------------------------")
         fmt.println("Debug print console logs:")
         fmt.println("---------------------------------")
-        logs_count := min(console_str_buffer.strings_count, STRING_CONSOLE_BUFFER_LENGTH)
-        start_index := (console_str_buffer.strings_count - logs_count) % STRING_CONSOLE_BUFFER_LENGTH
+        logs_count, start_index := get_logs_display_indexes()
         for i in 0 ..< logs_count {
                 index := (start_index + i) % STRING_CONSOLE_BUFFER_LENGTH
                 str := console_str_buffer.strings[index]

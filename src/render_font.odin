@@ -111,7 +111,7 @@ draw_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: s
         gl.BindVertexArray(0)
         if end_in_newline {
                 current_cursor.x = cursor_ndc.x
-                current_cursor.y = current_cursor.y - get_px_height_to_ndc(font_data.font_size_px)
+                current_cursor.y = current_cursor.y - get_px_height_to_ndc(font_size_px)
         }
         return current_cursor
 }

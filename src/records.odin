@@ -27,6 +27,7 @@ MainMenuState :: enum {
 
 GameLogicState :: struct {
         game_running: bool,
+        display_console: bool,
         frames: int,
         main_state: GameMainState,
         main_game_state: MainGameState,
