@@ -77,10 +77,3 @@ TextureData :: struct {
 	height_px: i32,
 	has_alpha: bool,
 }
-
-ImUiBuffers :: struct {
-	ui_rects: SimpleShader,
-	buffered_rects_2d: int,
-        ui_text: SimpleShader,
-	buffered_text: int,
-}

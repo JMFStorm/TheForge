@@ -1,5 +1,7 @@
 package main
 
+check_1_is_checked := false
+
 main_menu_logic :: proc() {
         switch game_logic_state.main_menu_state {
                 case .main_menu: {
@@ -34,10 +36,8 @@ main_menu_logic :: proc() {
                                 game_logic_state.main_menu_state = .main_menu
                         }
 
-                        checbox_1_pos := ui_point_anchored_to_ndc(.center, {0, vh(5)})
-                        if imui_setting_checkbox(checbox_1_pos, "Checkbox 2", menu_text_size) {
-                                log_debug("Checkbox")
-                        }
+                        checbox_1_pos := ui_rect2d_anchored_to_ndc(.center, {0, vh(5)}, {vh(30), 0})
+                        imui_setting_checkbox(checbox_1_pos.bot_left, "Checkbox 2", menu_text_size, &check_1_is_checked) 
 
                         // LOGIC
                 }

@@ -130,7 +130,7 @@ main :: proc() {
 
                 menu_title_text_size = vh(7.5)
                 menu_text_size = vh(5)
-
+                
                 switch game_logic_state.main_state {
                         case .main_menu: {
                                 main_menu_logic()
@@ -139,6 +139,7 @@ main :: proc() {
                                 main_game_logic()
                         }
                 }
+
                 // DRAW SCREEN
                 gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
                 gl.Clear(gl.COLOR_BUFFER_BIT)
@@ -146,6 +147,9 @@ main :: proc() {
                 draw_character({-0.6,0}, {0.1,0.1,0.1}, &game_fonts.debug_font, 'X')
                 if draw_selection_box == true {
                         draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
+                }
+                if check_1_is_checked {
+                        draw_text({-0.25, -0.25}, {0.1, 0.9, 0.1}, &game_fonts.debug_font, "check_1_is_checked", 30)
                 }
 	        imui_render()
                 if game_logic_state.display_console == true {

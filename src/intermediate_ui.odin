@@ -3,6 +3,21 @@ package main
 import "core:fmt"
 import gl "vendor:OpenGL"
 
+// Structs //
+
+ImUiBuffers :: struct {
+	ui_rects: SimpleShader,
+	buffered_rects_2d: int,
+        ui_text: SimpleShader,
+	buffered_text: int,
+}
+
+// Globals //
+
+imui_buffers : ImUiBuffers
+
+// Functions //
+
 imui_init :: proc() {
         init_imui_rect_2d_buffers()
         init_imui_text_buffers()
@@ -88,8 +103,7 @@ imui_text :: proc(cursor_ndc: Vec2, color: Color3, font_data: ^TTF_Font, text: s
 
 imui_menu_button :: proc(dimensions: Rect2D_NDC, text: string, font_size: f32) -> bool {
         dimensions_px := get_rect_ndc_to_px(dimensions)
-        rect_2d_point_collide := rect_2d_point_collide(game_controls.mouse.window_pos, dimensions_px)
-        on_hover := rect_2d_point_collide
+        on_hover := rect_2d_point_collide(game_controls.mouse.window_pos, dimensions_px)
         on_click := on_hover && game_controls.mouse.buttons[.m1].state.pressed
         buffer_imui_rect_2d(dimensions, {0.8, 0.8, 0.8})
         if on_hover {
@@ -106,7 +120,7 @@ imui_menu_button :: proc(dimensions: Rect2D_NDC, text: string, font_size: f32) -
         return on_click
 }
 
-imui_setting_checkbox :: proc(pos_ndc: Vec2, text: string, font_size: f32) -> bool {
+imui_setting_checkbox :: proc(pos_ndc: Vec2, text: string, font_size: f32, is_checked: ^bool) {
         text_width := get_font_text_width_px(&game_fonts.debug_font, text, font_size)
         checkbox_width := font_size
         checkbox_padding : f32 = font_size / 4
@@ -117,15 +131,20 @@ imui_setting_checkbox :: proc(pos_ndc: Vec2, text: string, font_size: f32) -> bo
                 rect_top_right
         }
         buffer_imui_rect_2d(checkbox_dimesions, {0.9, 0.9, 0.9})
-
         cursor := pos_ndc
         cursor.x += get_px_width_to_ndc(checkbox_padding + checkbox_width)
-
         if 0 < len(text) {
-                // cursor.x -= (get_px_width_to_ndc(f32(text_width)) / 2)
                 cursor = imui_text(cursor, {0.9, 0.9, 0.9}, &game_fonts.debug_font, text, font_size)
         }
-        return false
+        checkbox_hit_area := Rect2D_NDC{rect_bot_left, {rect_top_right.x + get_px_width_to_ndc(f32(text_width)), rect_top_right.y}}
+        on_hover := rect_2d_point_collide(game_controls.mouse.window_pos, get_rect_ndc_to_px(checkbox_hit_area))
+        on_click := on_hover && game_controls.mouse.buttons[.m1].state.pressed
+        if on_click {
+                is_checked^ = false if is_checked^ == true else true
+        }
+        if is_checked^ == true {
+                buffer_imui_rect_2d(checkbox_dimesions, {0.9, 0.1, 0.1})
+        }
 } 
 
 imui_menu_title :: proc(menu_name: string, font_size: f32) {

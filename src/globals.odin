@@ -21,10 +21,8 @@ game_controls: GameControls
 game_shaders : GameShaders
 game_textures : map[string]TextureData
 
-imui_buffers : ImUiBuffers
 game_fonts : GameFonts
 main_cursor : glfw.CursorHandle
 
 console_logger_data : ^log.File_Console_Logger_Data
 file_logger_data : ^log.File_Console_Logger_Data
-
