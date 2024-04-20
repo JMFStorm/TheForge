@@ -1,5 +1,9 @@
 package main
 
+GameUserSettings :: struct {
+        is_fullscreen: bool,
+}
+
 apply_game_settings :: proc() {
         set_window_fullscreen(game_user_settings.is_fullscreen)
 }

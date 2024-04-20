@@ -4,6 +4,7 @@ import gl "vendor:OpenGL"
 import glfw "vendor:glfw"
 import stbtt "vendor:stb/truetype"
 import stbi "vendor:stb/image"
+import ma "vendor:miniaudio"
 
 import "core:c"
 import "core:os"
@@ -114,6 +115,23 @@ main :: proc() {
         game_logic_state.main_state = .main_menu
         game_logic_state.game_running = true
 
+        //
+        // MINIAUDIO
+        engine: ma.engine
+        if ma.engine_init(nil, &engine) != .SUCCESS {
+                log_debug("Failed to initialize audio engine.")
+                return
+        }
+        defer ma.engine_uninit(&engine)
+
+        sound: ma.sound
+        if ma.sound_init_from_file(&engine, "G:\\projects\\game\\TheForge\\resources\\sounds\\bokoya.wav", 0, nil, nil, &sound) != .SUCCESS {
+                log_debug("Failed to sound_init_from_file.")
+                return
+        }
+        // MINIAUDIO END
+        //
+
 	for !glfw.WindowShouldClose(game_window.handle) && game_logic_state.game_running {
                 glfw.PollEvents()
 		set_game_frame_controls_state()
@@ -129,14 +147,7 @@ main :: proc() {
 
                 if game_controls.keyboard.keys[.w].state.pressed {
                         log_debug("W pressed")
-                        if glfw.GetWindowMonitor(game_window.handle) != nil {
-                                glfw.SetWindowMonitor(game_window.handle, nil, 100, 100, 1200, 900, glfw.DONT_CARE)
-                                game_window.is_fullscreen = false
-                        }
-                        else {
-                                glfw.SetWindowMonitor(game_window.handle, game_monitor.handle, 0, 0, game_monitor.width,  game_monitor.height, game_monitor.refresh_rate)
-                                game_window.is_fullscreen = true
-                        }
+                        ma.sound_start(&sound)
                 }
 
                 menu_title_text_size = vh(7.5)
