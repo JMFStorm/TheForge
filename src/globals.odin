@@ -26,3 +26,5 @@ main_cursor : glfw.CursorHandle
 
 console_logger_data : ^log.File_Console_Logger_Data
 file_logger_data : ^log.File_Console_Logger_Data
+
+game_user_settings : GameUserSettings

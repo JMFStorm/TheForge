@@ -50,6 +50,17 @@ set_game_cursor :: proc() -> glfw.CursorHandle {
         return cursor
 }
 
+set_window_fullscreen :: proc(is_fullscreen: bool) {
+        if is_fullscreen == false && glfw.GetWindowMonitor(game_window.handle) != nil {
+                glfw.SetWindowMonitor(game_window.handle, nil, 100, 100, 1200, 900, glfw.DONT_CARE)
+                game_window.is_fullscreen = false
+        }
+        else if is_fullscreen == true {
+                glfw.SetWindowMonitor(game_window.handle, game_monitor.handle, 0, 0, game_monitor.width,  game_monitor.height, game_monitor.refresh_rate)
+                game_window.is_fullscreen = true
+        }
+}
+
 main :: proc() {
         init_global_temporary_allocator(mem.Megabyte * 15)
         str_perma_allocator = init_str_perma_allocator(mem.Kilobyte * 512)
@@ -141,16 +152,14 @@ main :: proc() {
                 }
 
                 // DRAW SCREEN
-                gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
-                gl.Clear(gl.COLOR_BUFFER_BIT)
+                clear_screen_default()
+
                 draw_rect_2d({{0,0}, {0.5, 0.5}}, {1.0, 1.0, 0}, game_textures["awesomeface"].texture_id)
                 draw_character({-0.6,0}, {0.1,0.1,0.1}, &game_fonts.debug_font, 'X')
                 if draw_selection_box == true {
                         draw_rect_2d_lined({box_start_ndc, box_end_ndc}, {0.3, 0.4, 0.35}, 2.0)
                 }
-                if check_1_is_checked {
-                        draw_text({-0.25, -0.25}, {0.1, 0.9, 0.1}, &game_fonts.debug_font, "check_1_is_checked", 30)
-                }
+
 	        imui_render()
                 if game_logic_state.display_console == true {
                         display_console()

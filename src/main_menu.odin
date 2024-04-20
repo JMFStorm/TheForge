@@ -1,6 +1,8 @@
 package main
 
-check_1_is_checked := false
+apply_game_settings :: proc() {
+        set_window_fullscreen(game_user_settings.is_fullscreen)
+}
 
 main_menu_logic :: proc() {
         switch game_logic_state.main_menu_state {
@@ -30,14 +32,21 @@ main_menu_logic :: proc() {
                 case .settings: {
                         // IMUI
                         imui_menu_title("Settings", menu_title_text_size)
-                        bo_back_rect := ui_rect2d_anchored_to_ndc(.center, {0, -vh(25)}, {vh(30), menu_text_size})
-                        if imui_menu_button(bo_back_rect, "Go back", menu_text_size) { 
+
+                        checbox_1_pos := ui_rect2d_anchored_to_ndc(.center, {0, vh(5)}, {vh(30), 0})
+                        imui_setting_checkbox(checbox_1_pos.bot_left, "Fullscreen", menu_text_size, &game_user_settings.is_fullscreen) 
+
+                        go_back_rect := ui_rect2d_anchored_to_ndc(.center, {vh(17), -vh(25)}, {vh(30), menu_text_size})
+                        if imui_menu_button(go_back_rect, "Go back", menu_text_size) { 
                                 log_debug("Go back") 
                                 game_logic_state.main_menu_state = .main_menu
                         }
 
-                        checbox_1_pos := ui_rect2d_anchored_to_ndc(.center, {0, vh(5)}, {vh(30), 0})
-                        imui_setting_checkbox(checbox_1_pos.bot_left, "Checkbox 2", menu_text_size, &check_1_is_checked) 
+                        apply_back_rect := ui_rect2d_anchored_to_ndc(.center, {vh(-17), -vh(25)}, {vh(30), menu_text_size})
+                        if imui_menu_button(apply_back_rect, "Apply", menu_text_size) { 
+                                log_debug("Apply") 
+                                apply_game_settings()
+                        }
 
                         // LOGIC
                 }

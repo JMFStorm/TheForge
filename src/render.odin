@@ -92,3 +92,8 @@ create_texture :: proc(data: ImageData) -> TextureData {
         str_name := str_perma_copy(texture_name)
         return {str_name, texture_id, data.width_px, data.height_px, hasAlpha}
 }
+
+clear_screen_default :: proc() {
+        gl.ClearColor(CL_COLOR_DEFAULT.r, CL_COLOR_DEFAULT.g, CL_COLOR_DEFAULT.b, 1.0)
+        gl.Clear(gl.COLOR_BUFFER_BIT)
+}
